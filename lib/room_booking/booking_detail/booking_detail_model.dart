@@ -8,6 +8,9 @@ class BookingDetailModel extends FlutterFlowModel<BookingDetailWidget> {
   // Model for Sidebar component.
   late SidebarModel sidebarModel;
 
+  // Selected room
+  int selectedRoomIndex = 0;
+
   // Calendar
   DateTime selectedDate = DateTime.now();
   DateTime focusedMonth = DateTime.now();

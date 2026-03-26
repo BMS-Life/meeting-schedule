@@ -571,7 +571,7 @@ class _SidebarWidgetState extends State<SidebarWidget> {
                             hoverColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                             onTap: () async {
-                              context.pushNamed(BookingListWidget.routeName);
+                              context.pushNamed(BookingDetailWidget.routeName);
                             },
                             child: Container(
                               width: double.infinity,

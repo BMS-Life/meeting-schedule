@@ -82,7 +82,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) {
               ),
             ),
           )
-        : BookingListWidget(),
+        : BookingDetailWidget(),
     routes: [
       FFRoute(
         name: '_initialize',
@@ -97,7 +97,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) {
                   ),
                 ),
               )
-            : BookingListWidget(),
+            : BookingDetailWidget(),
       ),
       FFRoute(
         name: BookingListWidget.routeName,

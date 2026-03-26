@@ -24,6 +24,22 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   // Time slots: 24 hours (00.00 - 23.00)
+  // Room data
+  static const List<Map<String, dynamic>> _rooms = [
+    {
+      'name': 'ห้องประชุมที่ 1',
+      'location': 'อาคารเหล่าธงสิงห์ ห้อง 109',
+      'equipment': ['โปรเจคเตอร์', 'ไมโครโฟน', 'Wi-Fi'],
+    },
+    {
+      'name': 'ห้องประชุมที่ 2',
+      'location': 'อาคารเหล่าธงสิงห์ ห้องอาหาร',
+      'equipment': ['โปรเจคเตอร์', 'ไมโครโฟน', 'Wi-Fi'],
+    },
+  ];
+
+  Map<String, dynamic> get _currentRoom => _rooms[_model.selectedRoomIndex];
+
   static const List<String> _timeLabels = [
     '00.00', '01.00', '02.00', '03.00', '04.00', '05.00',
     '06.00', '07.00', '08.00', '09.00', '10.00', '11.00',
@@ -289,8 +305,7 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
               tablet: false,
               tabletLandscape: false,
             ))
-              _buildMobileAppBar(context, 'รายละเอียดห้องประชุม',
-                  onBack: () => context.safePop()),
+              _buildMobileAppBar(context, 'จองห้องประชุม'),
             Expanded(
               child: Row(
                 children: [
@@ -305,15 +320,7 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Breadcrumb (desktop only)
-                          if (responsiveVisibility(
-                              context: context, phone: false, tablet: false, tabletLandscape: false))
-                            _buildBreadcrumb(context),
-                          if (responsiveVisibility(
-                              context: context, phone: false, tablet: false, tabletLandscape: false))
-                            SizedBox(height: 16.0),
-
-                          // Room Header (hero banner style)
+                          // Room Header with room selector
                           _buildRoomHeader(context),
                           SizedBox(height: 16.0),
 
@@ -459,6 +466,9 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
 
   // ─── Room Header (Hero Banner style from Figma) ───
   Widget _buildRoomHeader(BuildContext context) {
+    final room = _currentRoom;
+    final equipment = (room['equipment'] as List).cast<String>();
+
     return Container(
       width: double.infinity,
       constraints: BoxConstraints(minHeight: 106.0),
@@ -490,31 +500,49 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'ห้องประชุมที่ 1',
-                      style: FlutterFlowTheme.of(context)
-                          .titleSmall
-                          .override(
-                            fontFamily: FlutterFlowTheme.of(context)
-                                .titleSmallFamily,
-                            color:
-                                FlutterFlowTheme.of(context).primaryText,
-                            letterSpacing: 0.0,
-                            fontWeight: FontWeight.w600,
-                            useGoogleFonts: !FlutterFlowTheme.of(context)
-                                .titleSmallIsCustom,
+                    // Room selector row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: () => _showRoomPicker(context),
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  room['name'] as String,
+                                  style: FlutterFlowTheme.of(context)
+                                      .titleSmall
+                                      .override(
+                                        fontFamily: FlutterFlowTheme.of(context)
+                                            .titleSmallFamily,
+                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.w600,
+                                        useGoogleFonts: !FlutterFlowTheme.of(context)
+                                            .titleSmallIsCustom,
+                                      ),
+                                ),
+                                SizedBox(width: 4.0),
+                                Icon(Icons.keyboard_arrow_down_rounded,
+                                    color: FlutterFlowTheme.of(context).secondaryText,
+                                    size: 20.0),
+                              ],
+                            ),
                           ),
+                        ),
+                      ],
                     ),
                     SizedBox(height: 4.0),
                     Text(
-                      'อาคารเหล่าธงสิงห์ ห้อง 109',
+                      room['location'] as String,
                       style: FlutterFlowTheme.of(context)
                           .bodySmall
                           .override(
                             fontFamily: FlutterFlowTheme.of(context)
                                 .bodySmallFamily,
-                            color:
-                                FlutterFlowTheme.of(context).secondaryText,
+                            color: FlutterFlowTheme.of(context).secondaryText,
                             letterSpacing: 0.0,
                             useGoogleFonts: !FlutterFlowTheme.of(context)
                                 .bodySmallIsCustom,
@@ -525,7 +553,7 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
                     Wrap(
                       spacing: 8.0,
                       runSpacing: 4.0,
-                      children: ['โปรเจคเตอร์', 'ไมโครโฟน', 'Wi-Fi']
+                      children: equipment
                           .map((e) => _buildEquipmentTag(context, e))
                           .toList(),
                     ),
@@ -578,6 +606,131 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showRoomPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+      ),
+      builder: (sheetContext) {
+        return Padding(
+          padding: EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40.0,
+                  height: 4.0,
+                  decoration: BoxDecoration(
+                    color: FlutterFlowTheme.of(context).accent3,
+                    borderRadius: BorderRadius.circular(100.0),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.0),
+              Text(
+                'เลือกห้องประชุม',
+                style: FlutterFlowTheme.of(context).titleSmall.override(
+                      fontFamily: FlutterFlowTheme.of(context).titleSmallFamily,
+                      letterSpacing: 0.0,
+                      fontWeight: FontWeight.w600,
+                      useGoogleFonts:
+                          !FlutterFlowTheme.of(context).titleSmallIsCustom,
+                    ),
+              ),
+              SizedBox(height: 12.0),
+              ...List.generate(_rooms.length, (index) {
+                final room = _rooms[index];
+                final isSelected = _model.selectedRoomIndex == index;
+                return Padding(
+                  padding: EdgeInsets.only(bottom: 8.0),
+                  child: InkWell(
+                    onTap: () {
+                      safeSetState(() => _model.selectedRoomIndex = index);
+                      Navigator.pop(sheetContext);
+                    },
+                    borderRadius: BorderRadius.circular(16.0),
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? FlutterFlowTheme.of(context).primary.withAlpha(20)
+                            : FlutterFlowTheme.of(context).primaryBackground,
+                        borderRadius: BorderRadius.circular(16.0),
+                        border: Border.all(
+                          color: isSelected
+                              ? FlutterFlowTheme.of(context).primary
+                              : FlutterFlowTheme.of(context).accent3,
+                          width: isSelected ? 1.5 : 0.5,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  room['name'] as String,
+                                  style: FlutterFlowTheme.of(context)
+                                      .bodyMedium
+                                      .override(
+                                        fontFamily: FlutterFlowTheme.of(context)
+                                            .bodyMediumFamily,
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.w600,
+                                        useGoogleFonts: !FlutterFlowTheme.of(context)
+                                            .bodyMediumIsCustom,
+                                      ),
+                                ),
+                                SizedBox(height: 2.0),
+                                Text(
+                                  room['location'] as String,
+                                  style: FlutterFlowTheme.of(context)
+                                      .labelSmall
+                                      .override(
+                                        fontFamily: FlutterFlowTheme.of(context)
+                                            .labelSmallFamily,
+                                        color: FlutterFlowTheme.of(context)
+                                            .secondaryText,
+                                        letterSpacing: 0.0,
+                                        useGoogleFonts: !FlutterFlowTheme.of(context)
+                                            .labelSmallIsCustom,
+                                      ),
+                                ),
+                                SizedBox(height: 6.0),
+                                Wrap(
+                                  spacing: 6.0,
+                                  runSpacing: 4.0,
+                                  children: (room['equipment'] as List)
+                                      .cast<String>()
+                                      .map((e) => _buildEquipmentTag(context, e))
+                                      .toList(),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (isSelected)
+                            Icon(Icons.check_circle_rounded,
+                                color: FlutterFlowTheme.of(context).primary,
+                                size: 24.0),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        );
+      },
     );
   }
 
