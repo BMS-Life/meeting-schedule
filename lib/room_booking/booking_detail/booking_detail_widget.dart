@@ -640,10 +640,8 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
       ),
     );
 
-    // View toggle (hidden on mobile - forced day view)
-    final viewToggle = isMobile
-        ? SizedBox.shrink()
-        : Container(
+    // View toggle (always visible)
+    final viewToggle = Container(
             height: 40.0,
             decoration: BoxDecoration(
               color: FlutterFlowTheme.of(context).primaryBackground,
@@ -754,10 +752,8 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
           Row(
             children: [
               Expanded(child: monthDisplay),
-              if (!isMobile) ...[
-                SizedBox(width: 8.0),
-                viewToggle,
-              ],
+              SizedBox(width: 8.0),
+              viewToggle,
             ],
           ),
           SizedBox(height: 8.0),
@@ -804,9 +800,7 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
 
   // ─── Timetable Grid ───
   Widget _buildTimetableGrid(BuildContext context, DateTime weekStart) {
-    final isMobile = MediaQuery.sizeOf(context).width < kBreakpointSmall;
-    // Force day view on mobile
-    if (_model.viewMode == 0 || isMobile) {
+    if (_model.viewMode == 0) {
       return _buildDayViewGrid(context);
     }
     return _buildWeekViewGrid(context, weekStart);
@@ -981,14 +975,13 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
     const timeColumnWidth = 100.0;
     const rowHeight = 100.0;
     const headerHeight = 60.0;
-    // Responsive dayColumnWidth: calculate from available space on tablet
+    // Responsive dayColumnWidth: fit available space or scroll
     final screenWidth = MediaQuery.sizeOf(context).width;
     final sidebarWidth = screenWidth >= kBreakpointLarge ? 320.0 : 0.0;
-    final availableWidth = screenWidth - sidebarWidth - timeColumnWidth - 32.0 - 2.0; // 32 = padding, 2 = borders
+    final availableWidth = screenWidth - sidebarWidth - timeColumnWidth - 32.0 - 2.0;
     final calculatedDayWidth = availableWidth / 7;
-    final dayColumnWidth = screenWidth >= kBreakpointLarge
-        ? 300.0
-        : calculatedDayWidth.clamp(120.0, 300.0);
+    // Minimum 150px per day column to keep content readable; scroll if needed
+    final dayColumnWidth = calculatedDayWidth < 150.0 ? 150.0 : calculatedDayWidth;
 
     return ClipRRect(
       borderRadius: BorderRadius.only(
