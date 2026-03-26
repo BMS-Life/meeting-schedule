@@ -1393,197 +1393,205 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
         break;
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            gradientTo,
-            FlutterFlowTheme.of(context).primaryBackground,
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(
-          color: FlutterFlowTheme.of(context).accent3,
-          width: 0.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 4.0,
-            color: Color(0x0F000000),
-            offset: Offset(0.0, 2.0),
-          ),
-          BoxShadow(
-            blurRadius: 2.0,
-            color: Color(0x0F000000),
-            offset: Offset(0.0, 1.0),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Room title + location
-            Text(
-              booking['title'] ?? '',
-              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                    fontFamily:
-                        FlutterFlowTheme.of(context).bodyMediumFamily,
-                    color: FlutterFlowTheme.of(context).primaryText,
-                    letterSpacing: 0.0,
-                    fontWeight: FontWeight.w600,
-                    useGoogleFonts: !FlutterFlowTheme.of(context)
-                        .bodyMediumIsCustom,
-                  ),
-              overflow: TextOverflow.ellipsis,
-            ),
-            SizedBox(height: 2.0),
-            Text(
-              booking['location'] ?? '',
-              style: FlutterFlowTheme.of(context).labelSmall.override(
-                    fontFamily:
-                        FlutterFlowTheme.of(context).labelSmallFamily,
-                    color: FlutterFlowTheme.of(context).secondaryText,
-                    letterSpacing: 0.0,
-                    useGoogleFonts: !FlutterFlowTheme.of(context)
-                        .labelSmallIsCustom,
-                  ),
-              overflow: TextOverflow.ellipsis,
-            ),
-            SizedBox(height: 4.0),
-            // Status indicator
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 8.0,
-                  height: 8.0,
-                  decoration: BoxDecoration(
-                    color: statusColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                SizedBox(width: 8.0),
-                Flexible(
-                  child: Text(
-                    booking['statusText'] ?? '',
-                    style: FlutterFlowTheme.of(context)
-                        .bodySmall
-                        .override(
-                          fontFamily: FlutterFlowTheme.of(context)
-                              .bodySmallFamily,
-                          color: statusColor,
-                          letterSpacing: 0.0,
-                          fontWeight: FontWeight.w600,
-                          useGoogleFonts: !FlutterFlowTheme.of(context)
-                              .bodySmallIsCustom,
-                        ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Show booker info only when card has enough height (> 150px)
+        final showBooker = constraints.maxHeight > 150.0;
+
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                gradientTo,
+                FlutterFlowTheme.of(context).primaryBackground,
               ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
             ),
-            SizedBox(height: 2.0),
-            // Time
-            Text(
-              booking['timeText'] ?? '',
-              style: FlutterFlowTheme.of(context).bodySmall.override(
-                    fontFamily:
-                        FlutterFlowTheme.of(context).bodySmallFamily,
-                    color: FlutterFlowTheme.of(context).primaryText,
-                    letterSpacing: 0.0,
-                    fontWeight: FontWeight.w600,
-                    useGoogleFonts: !FlutterFlowTheme.of(context)
-                        .bodySmallIsCustom,
-                  ),
+            borderRadius: BorderRadius.circular(16.0),
+            border: Border.all(
+              color: FlutterFlowTheme.of(context).accent3,
+              width: 0.5,
             ),
-            Spacer(),
-            // Booker info
-            Container(
-              decoration: BoxDecoration(
-                color: FlutterFlowTheme.of(context).primaryBackground,
-                borderRadius: BorderRadius.circular(100.0),
-                border: Border.all(
-                  color: FlutterFlowTheme.of(context).accent3,
-                  width: 0.5,
-                ),
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 4.0,
+                color: Color(0x0F000000),
+                offset: Offset(0.0, 2.0),
               ),
-              child: Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(
-                    8.0, 6.0, 12.0, 6.0),
-                child: Row(
+              BoxShadow(
+                blurRadius: 2.0,
+                color: Color(0x0F000000),
+                offset: Offset(0.0, 1.0),
+              ),
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Padding(
+            padding: EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Room title + location
+                Text(
+                  booking['title'] ?? '',
+                  style: FlutterFlowTheme.of(context).bodyMedium.override(
+                        fontFamily:
+                            FlutterFlowTheme.of(context).bodyMediumFamily,
+                        color: FlutterFlowTheme.of(context).primaryText,
+                        letterSpacing: 0.0,
+                        fontWeight: FontWeight.w600,
+                        useGoogleFonts: !FlutterFlowTheme.of(context)
+                            .bodyMediumIsCustom,
+                      ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 2.0),
+                Text(
+                  booking['location'] ?? '',
+                  style: FlutterFlowTheme.of(context).labelSmall.override(
+                        fontFamily:
+                            FlutterFlowTheme.of(context).labelSmallFamily,
+                        color: FlutterFlowTheme.of(context).secondaryText,
+                        letterSpacing: 0.0,
+                        useGoogleFonts: !FlutterFlowTheme.of(context)
+                            .labelSmallIsCustom,
+                      ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 4.0),
+                // Status indicator
+                Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      width: 32.0,
-                      height: 32.0,
+                      width: 8.0,
+                      height: 8.0,
                       decoration: BoxDecoration(
-                        color: Color(0x260485F7),
+                        color: statusColor,
                         shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.person_outline_rounded,
-                          color: FlutterFlowTheme.of(context).primary,
-                          size: 16.0,
-                        ),
                       ),
                     ),
                     SizedBox(width: 8.0),
                     Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'ผู้จัดประชุม',
-                            style: FlutterFlowTheme.of(context)
-                                .labelSmall
-                                .override(
-                                  fontFamily:
-                                      FlutterFlowTheme.of(context)
-                                          .labelSmallFamily,
-                                  color: FlutterFlowTheme.of(context)
-                                      .secondaryText,
-                                  fontSize: 10.0,
-                                  letterSpacing: 0.0,
-                                  useGoogleFonts:
-                                      !FlutterFlowTheme.of(context)
-                                          .labelSmallIsCustom,
-                                ),
-                          ),
-                          Text(
-                            booking['booker'] ?? '',
-                            style: FlutterFlowTheme.of(context)
-                                .bodySmall
-                                .override(
-                                  fontFamily:
-                                      FlutterFlowTheme.of(context)
-                                          .bodySmallFamily,
-                                  color: FlutterFlowTheme.of(context)
-                                      .primaryText,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.w500,
-                                  useGoogleFonts:
-                                      !FlutterFlowTheme.of(context)
-                                          .bodySmallIsCustom,
-                                ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
+                      child: Text(
+                        booking['statusText'] ?? '',
+                        style: FlutterFlowTheme.of(context)
+                            .bodySmall
+                            .override(
+                              fontFamily: FlutterFlowTheme.of(context)
+                                  .bodySmallFamily,
+                              color: statusColor,
+                              letterSpacing: 0.0,
+                              fontWeight: FontWeight.w600,
+                              useGoogleFonts: !FlutterFlowTheme.of(context)
+                                  .bodySmallIsCustom,
+                            ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
-              ),
+                SizedBox(height: 2.0),
+                // Time
+                Text(
+                  booking['timeText'] ?? '',
+                  style: FlutterFlowTheme.of(context).bodySmall.override(
+                        fontFamily:
+                            FlutterFlowTheme.of(context).bodySmallFamily,
+                        color: FlutterFlowTheme.of(context).primaryText,
+                        letterSpacing: 0.0,
+                        fontWeight: FontWeight.w600,
+                        useGoogleFonts: !FlutterFlowTheme.of(context)
+                            .bodySmallIsCustom,
+                      ),
+                ),
+                if (showBooker) Spacer(),
+                // Booker info (hidden when card is too small)
+                if (showBooker)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: FlutterFlowTheme.of(context).primaryBackground,
+                      borderRadius: BorderRadius.circular(100.0),
+                      border: Border.all(
+                        color: FlutterFlowTheme.of(context).accent3,
+                        width: 0.5,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(
+                          8.0, 6.0, 12.0, 6.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 32.0,
+                            height: 32.0,
+                            decoration: BoxDecoration(
+                              color: Color(0x260485F7),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Icon(
+                                Icons.person_outline_rounded,
+                                color: FlutterFlowTheme.of(context).primary,
+                                size: 16.0,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 8.0),
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'ผู้จัดประชุม',
+                                  style: FlutterFlowTheme.of(context)
+                                      .labelSmall
+                                      .override(
+                                        fontFamily:
+                                            FlutterFlowTheme.of(context)
+                                                .labelSmallFamily,
+                                        color: FlutterFlowTheme.of(context)
+                                            .secondaryText,
+                                        fontSize: 10.0,
+                                        letterSpacing: 0.0,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .labelSmallIsCustom,
+                                      ),
+                                ),
+                                Text(
+                                  booking['booker'] ?? '',
+                                  style: FlutterFlowTheme.of(context)
+                                      .bodySmall
+                                      .override(
+                                        fontFamily:
+                                            FlutterFlowTheme.of(context)
+                                                .bodySmallFamily,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.w500,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .bodySmallIsCustom,
+                                      ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
