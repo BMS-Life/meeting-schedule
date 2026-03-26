@@ -274,11 +274,9 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
         FocusScope.of(context).unfocus();
         FocusManager.instance.primaryFocus?.unfocus();
       },
-      child: Scaffold(
-        key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        extendBodyBehindAppBar: true,
-        body: Row(
+      child: Material(
+        color: FlutterFlowTheme.of(context).primaryBackground,
+        child: Row(
           children: [
             wrapWithModel(
               model: _model.sidebarModel,
@@ -579,43 +577,73 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
     );
   }
 
+  void _scrollToNow() {
+    final now = DateTime.now();
+    final isMobile = MediaQuery.sizeOf(context).width < kBreakpointSmall;
+    final rh = isMobile ? 70.0 : 100.0;
+    final targetScroll = (now.hour * rh) - rh;
+    Future.delayed(Duration(milliseconds: 100), () {
+      final bodyCtrl = _model.viewMode == 0
+          ? _dayBodyScrollController
+          : _bodyScrollController;
+      final timeCtrl = _model.viewMode == 0
+          ? _dayTimeScrollController
+          : _timeScrollController;
+      if (bodyCtrl.hasClients) {
+        bodyCtrl.animateTo(
+          targetScroll.clamp(0.0, bodyCtrl.position.maxScrollExtent),
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+      if (timeCtrl.hasClients) {
+        timeCtrl.animateTo(
+          targetScroll.clamp(0.0, timeCtrl.position.maxScrollExtent),
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
   Widget _buildToolbar(BuildContext context, DateTime focused) {
-    return Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Row(
-        children: [
-          // Month selector
-          Container(
-            height: 40.0,
-            decoration: BoxDecoration(
-              color: FlutterFlowTheme.of(context).primaryBackground,
-              borderRadius: BorderRadius.circular(12.0),
-              border: Border.all(
-                color: FlutterFlowTheme.of(context).accent3,
-                width: 0.5,
-              ),
-            ),
-            child: Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 12.0, 0.0),
-              child: Center(
-                child: Text(
-                  _model.viewMode == 0
-                      ? 'วัน${_thaiDayNames[_model.selectedDate.weekday - 1]} ${_model.selectedDate.day} ${_thaiMonthsFull[_model.selectedDate.month]} ${_model.selectedDate.year + 543}'
-                      : '${_thaiMonthsFull[focused.month]} ${focused.year + 543}',
-                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                        fontFamily:
-                            FlutterFlowTheme.of(context).bodyMediumFamily,
-                        letterSpacing: 0.0,
-                        useGoogleFonts: !FlutterFlowTheme.of(context)
-                            .bodyMediumIsCustom,
-                      ),
+    final isCompact = MediaQuery.sizeOf(context).width < kBreakpointLarge;
+    final isMobile = MediaQuery.sizeOf(context).width < kBreakpointSmall;
+
+    // Month display widget
+    final monthDisplay = Container(
+      height: 40.0,
+      decoration: BoxDecoration(
+        color: FlutterFlowTheme.of(context).primaryBackground,
+        borderRadius: BorderRadius.circular(12.0),
+        border: Border.all(
+          color: FlutterFlowTheme.of(context).accent3,
+          width: 0.5,
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 12.0, 0.0),
+        child: Center(
+          child: Text(
+            _model.viewMode == 0
+                ? 'วัน${_thaiDayNames[_model.selectedDate.weekday - 1]} ${_model.selectedDate.day} ${_thaiMonthsFull[_model.selectedDate.month]} ${_model.selectedDate.year + 543}'
+                : '${_thaiMonthsFull[focused.month]} ${focused.year + 543}',
+            style: FlutterFlowTheme.of(context).bodySmall.override(
+                  fontFamily: FlutterFlowTheme.of(context).bodySmallFamily,
+                  letterSpacing: 0.0,
+                  useGoogleFonts:
+                      !FlutterFlowTheme.of(context).bodySmallIsCustom,
                 ),
-              ),
-            ),
+            overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(width: 16.0),
-          // View toggle: วัน / สัปดาห์
-          Container(
+        ),
+      ),
+    );
+
+    // View toggle (hidden on mobile - forced day view)
+    final viewToggle = isMobile
+        ? SizedBox.shrink()
+        : Container(
             height: 40.0,
             decoration: BoxDecoration(
               color: FlutterFlowTheme.of(context).primaryBackground,
@@ -635,96 +663,107 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
                 ],
               ),
             ),
+          );
+
+    // Navigation controls
+    final navControls = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        InkWell(
+          onTap: () => safeSetState(() {
+            _model.selectedDate = DateTime.now();
+            _model.focusedMonth = _model.selectedDate;
+            _scrollToNow();
+          }),
+          borderRadius: BorderRadius.circular(12.0),
+          child: Container(
+            height: 36.0,
+            padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 12.0, 0.0),
+            decoration: BoxDecoration(
+              color: FlutterFlowTheme.of(context).primary,
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            child: Center(
+              child: Text(
+                'วันนี้',
+                style: FlutterFlowTheme.of(context).bodySmall.override(
+                      fontFamily:
+                          FlutterFlowTheme.of(context).bodySmallFamily,
+                      color:
+                          FlutterFlowTheme.of(context).primaryBackground,
+                      letterSpacing: 0.0,
+                      fontWeight: FontWeight.w600,
+                      useGoogleFonts: !FlutterFlowTheme.of(context)
+                          .bodySmallIsCustom,
+                    ),
+              ),
+            ),
           ),
-          Spacer(),
-          // "วันนี้" button + Navigation arrows
+        ),
+        SizedBox(width: 8.0),
+        FlutterFlowIconButton(
+          borderRadius: 100.0,
+          buttonSize: 36.0,
+          fillColor: FlutterFlowTheme.of(context).secondaryBackground,
+          icon: Icon(Icons.chevron_left_rounded,
+              color: FlutterFlowTheme.of(context).primary, size: 20.0),
+          onPressed: () => safeSetState(() {
+            final step = _model.viewMode == 0 ? 1 : 7;
+            _model.selectedDate =
+                _model.selectedDate.subtract(Duration(days: step));
+            _model.focusedMonth = _model.selectedDate;
+          }),
+        ),
+        SizedBox(width: 8.0),
+        FlutterFlowIconButton(
+          borderRadius: 100.0,
+          buttonSize: 36.0,
+          fillColor: FlutterFlowTheme.of(context).secondaryBackground,
+          icon: Icon(Icons.chevron_right_rounded,
+              color: FlutterFlowTheme.of(context).primary, size: 20.0),
+          onPressed: () => safeSetState(() {
+            final step = _model.viewMode == 0 ? 1 : 7;
+            _model.selectedDate =
+                _model.selectedDate.add(Duration(days: step));
+            _model.focusedMonth = _model.selectedDate;
+          }),
+        ),
+      ],
+    );
+
+    // Desktop: single row | Mobile/Tablet: 2 rows
+    if (!isCompact) {
+      return Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            monthDisplay,
+            SizedBox(width: 16.0),
+            viewToggle,
+            Spacer(),
+            navControls,
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.all(isMobile ? 8.0 : 16.0),
+      child: Column(
+        children: [
           Row(
             children: [
-              InkWell(
-                onTap: () => safeSetState(() {
-                  _model.selectedDate = DateTime.now();
-                  _model.focusedMonth = _model.selectedDate;
-                  // Scroll to current hour in timetable
-                  final now = DateTime.now();
-                  final targetScroll = (now.hour * 100.0) - 100.0;
-                  Future.delayed(Duration(milliseconds: 100), () {
-                    final bodyCtrl = _model.viewMode == 0
-                        ? _dayBodyScrollController
-                        : _bodyScrollController;
-                    final timeCtrl = _model.viewMode == 0
-                        ? _dayTimeScrollController
-                        : _timeScrollController;
-                    if (bodyCtrl.hasClients) {
-                      bodyCtrl.animateTo(
-                        targetScroll.clamp(0.0, bodyCtrl.position.maxScrollExtent),
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                    }
-                    if (timeCtrl.hasClients) {
-                      timeCtrl.animateTo(
-                        targetScroll.clamp(0.0, timeCtrl.position.maxScrollExtent),
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                    }
-                  });
-                }),
-                borderRadius: BorderRadius.circular(12.0),
-                child: Container(
-                  height: 36.0,
-                  padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 12.0, 0.0),
-                  decoration: BoxDecoration(
-                    color: FlutterFlowTheme.of(context).primary,
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'วันนี้',
-                      style: FlutterFlowTheme.of(context).bodySmall.override(
-                            fontFamily: FlutterFlowTheme.of(context).bodySmallFamily,
-                            color: FlutterFlowTheme.of(context).primaryBackground,
-                            letterSpacing: 0.0,
-                            fontWeight: FontWeight.w600,
-                            useGoogleFonts: !FlutterFlowTheme.of(context).bodySmallIsCustom,
-                          ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 8.0),
-              FlutterFlowIconButton(
-                borderRadius: 100.0,
-                buttonSize: 36.0,
-                fillColor:
-                    FlutterFlowTheme.of(context).secondaryBackground,
-                icon: Icon(Icons.chevron_left_rounded,
-                    color: FlutterFlowTheme.of(context).primary,
-                    size: 20.0),
-                onPressed: () => safeSetState(() {
-                  final step = _model.viewMode == 0 ? 1 : 7;
-                  _model.selectedDate = _model.selectedDate
-                      .subtract(Duration(days: step));
-                  _model.focusedMonth = _model.selectedDate;
-                }),
-              ),
-              SizedBox(width: 8.0),
-              FlutterFlowIconButton(
-                borderRadius: 100.0,
-                buttonSize: 36.0,
-                fillColor:
-                    FlutterFlowTheme.of(context).secondaryBackground,
-                icon: Icon(Icons.chevron_right_rounded,
-                    color: FlutterFlowTheme.of(context).primary,
-                    size: 20.0),
-                onPressed: () => safeSetState(() {
-                  final step = _model.viewMode == 0 ? 1 : 7;
-                  _model.selectedDate =
-                      _model.selectedDate.add(Duration(days: step));
-                  _model.focusedMonth = _model.selectedDate;
-                }),
-              ),
+              Expanded(child: monthDisplay),
+              if (!isMobile) ...[
+                SizedBox(width: 8.0),
+                viewToggle,
+              ],
             ],
+          ),
+          SizedBox(height: 8.0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [navControls],
           ),
         ],
       ),
@@ -765,7 +804,9 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
 
   // ─── Timetable Grid ───
   Widget _buildTimetableGrid(BuildContext context, DateTime weekStart) {
-    if (_model.viewMode == 0) {
+    final isMobile = MediaQuery.sizeOf(context).width < kBreakpointSmall;
+    // Force day view on mobile
+    if (_model.viewMode == 0 || isMobile) {
       return _buildDayViewGrid(context);
     }
     return _buildWeekViewGrid(context, weekStart);
@@ -781,8 +822,9 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
   Widget _buildDayViewGrid(BuildContext context) {
     final date = _model.selectedDate;
     final bookings = _getBookingsForDate(date);
-    const timeColumnWidth = 100.0;
-    const rowHeight = 100.0;
+    final isMobile = MediaQuery.sizeOf(context).width < kBreakpointSmall;
+    final timeColumnWidth = isMobile ? 60.0 : 100.0;
+    final rowHeight = isMobile ? 70.0 : 100.0;
 
     return ClipRRect(
       borderRadius: BorderRadius.only(
@@ -939,7 +981,14 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
     const timeColumnWidth = 100.0;
     const rowHeight = 100.0;
     const headerHeight = 60.0;
-    const dayColumnWidth = 300.0;
+    // Responsive dayColumnWidth: calculate from available space on tablet
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final sidebarWidth = screenWidth >= kBreakpointLarge ? 320.0 : 0.0;
+    final availableWidth = screenWidth - sidebarWidth - timeColumnWidth - 32.0 - 2.0; // 32 = padding, 2 = borders
+    final calculatedDayWidth = availableWidth / 7;
+    final dayColumnWidth = screenWidth >= kBreakpointLarge
+        ? 300.0
+        : calculatedDayWidth.clamp(120.0, 300.0);
 
     return ClipRRect(
       borderRadius: BorderRadius.only(
@@ -1550,14 +1599,19 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
       BuildContext context, Map<String, dynamic> booking) {
     final status = booking['status'] as String;
 
+    final isMobile = MediaQuery.sizeOf(context).width < kBreakpointSmall;
+
     showDialog(
       context: context,
       builder: (dialogContext) {
         return Dialog(
           elevation: 0,
           backgroundColor: Colors.transparent,
+          insetPadding: isMobile
+              ? EdgeInsets.symmetric(horizontal: 12.0, vertical: 24.0)
+              : EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
           child: Container(
-            width: 500.0,
+            width: isMobile ? double.infinity : 500.0,
             constraints: BoxConstraints(
               maxHeight: MediaQuery.sizeOf(context).height * 0.85,
             ),
@@ -1566,7 +1620,7 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
               borderRadius: BorderRadius.circular(24.0),
             ),
             child: Padding(
-              padding: EdgeInsets.all(24.0),
+              padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1634,33 +1688,31 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
                           _readOnlyField(context, booking['subject'] ?? ''),
                           SizedBox(height: 16.0),
                           // ชื่อผู้จอง + แผนก
-                          Row(children: [
-                            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          _responsiveDetailRow(context, isMobile, [
+                            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                               _label(context, 'ชื่อผู้จอง'),
                               SizedBox(height: 4.0),
                               _readOnlyField(context, booking['booker'] ?? ''),
-                            ])),
-                            SizedBox(width: 12.0),
-                            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            ]),
+                            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                               _label(context, 'แผนก/หน่วยงาน'),
                               SizedBox(height: 4.0),
                               _readOnlyField(context, booking['department'] ?? ''),
-                            ])),
+                            ]),
                           ]),
                           SizedBox(height: 16.0),
                           // เบอร์ติดต่อ + จำนวนผู้เข้าร่วม
-                          Row(children: [
-                            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          _responsiveDetailRow(context, isMobile, [
+                            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                               _label(context, 'เบอร์ติดต่อ'),
                               SizedBox(height: 4.0),
                               _readOnlyField(context, booking['phone'] ?? ''),
-                            ])),
-                            SizedBox(width: 12.0),
-                            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            ]),
+                            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                               _label(context, 'จำนวนผู้เข้าร่วม'),
                               SizedBox(height: 4.0),
                               _readOnlyField(context, '${booking['attendeeCount'] ?? ''} คน'),
-                            ])),
+                            ]),
                           ]),
                           SizedBox(height: 16.0),
                           // หมายเหตุ
@@ -1679,66 +1731,63 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
                   SizedBox(height: 16.0),
                   // Action buttons: Edit + Cancel (fixed at bottom)
                   if (status != 'ended')
-                    Row(children: [
-                      Expanded(
-                        child: FFButtonWidget(
-                          onPressed: () {
-                            Navigator.pop(dialogContext);
-                            _showBookingDialog(context, _model.selectedDate,
-                                booking['startSlot'] as int,
-                                booking['endSlot'] as int);
-                          },
-                          text: 'แก้ไขการจอง',
-                          icon: Icon(Icons.edit_rounded, size: 18.0),
-                          options: FFButtonOptions(
-                            height: 48.0,
-                            padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                            iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                            iconColor: FlutterFlowTheme.of(context).primaryBackground,
-                            color: FlutterFlowTheme.of(context).primary,
-                            textStyle: FlutterFlowTheme.of(context).bodyMedium.override(
-                                  fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
-                                  color: FlutterFlowTheme.of(context).primaryBackground,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.w600,
-                                  useGoogleFonts: !FlutterFlowTheme.of(context).bodyMediumIsCustom,
-                                ),
-                            elevation: 0.0,
-                            borderRadius: BorderRadius.circular(16.0),
-                          ),
+                    _responsiveDetailRow(context, isMobile, [
+                      FFButtonWidget(
+                        onPressed: () {
+                          Navigator.pop(dialogContext);
+                          _showBookingDialog(context, _model.selectedDate,
+                              booking['startSlot'] as int,
+                              booking['endSlot'] as int);
+                        },
+                        text: 'แก้ไขการจอง',
+                        icon: Icon(Icons.edit_rounded, size: 18.0),
+                        options: FFButtonOptions(
+                          width: double.infinity,
+                          height: 48.0,
+                          padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                          iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                          iconColor: FlutterFlowTheme.of(context).primaryBackground,
+                          color: FlutterFlowTheme.of(context).primary,
+                          textStyle: FlutterFlowTheme.of(context).bodyMedium.override(
+                                fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
+                                color: FlutterFlowTheme.of(context).primaryBackground,
+                                letterSpacing: 0.0,
+                                fontWeight: FontWeight.w600,
+                                useGoogleFonts: !FlutterFlowTheme.of(context).bodyMediumIsCustom,
+                              ),
+                          elevation: 0.0,
+                          borderRadius: BorderRadius.circular(16.0),
                         ),
                       ),
-                      SizedBox(width: 12.0),
-                      Expanded(
-                        child: FFButtonWidget(
-                          onPressed: () {
-                            Navigator.pop(dialogContext);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('ยกเลิกการจองเรียบร้อยแล้ว'),
-                                backgroundColor: FlutterFlowTheme.of(context).error,
+                      FFButtonWidget(
+                        onPressed: () {
+                          Navigator.pop(dialogContext);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('ยกเลิกการจองเรียบร้อยแล้ว'),
+                              backgroundColor: FlutterFlowTheme.of(context).error,
+                            ),
+                          );
+                        },
+                        text: 'ยกเลิกการจอง',
+                        icon: Icon(Icons.cancel_rounded, size: 18.0),
+                        options: FFButtonOptions(
+                          width: double.infinity,
+                          height: 48.0,
+                          padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                          iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                          iconColor: FlutterFlowTheme.of(context).error,
+                          color: FlutterFlowTheme.of(context).primaryBackground,
+                          textStyle: FlutterFlowTheme.of(context).bodyMedium.override(
+                                fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
+                                color: FlutterFlowTheme.of(context).error,
+                                letterSpacing: 0.0,
+                                fontWeight: FontWeight.w600,
+                                useGoogleFonts: !FlutterFlowTheme.of(context).bodyMediumIsCustom,
                               ),
-                            );
-                          },
-                          text: 'ยกเลิกการจอง',
-                          icon: Icon(Icons.cancel_rounded, size: 18.0),
-                          options: FFButtonOptions(
-                            height: 48.0,
-                            padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                            iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                            iconColor: FlutterFlowTheme.of(context).error,
-                            color: FlutterFlowTheme.of(context).primaryBackground,
-                            textStyle: FlutterFlowTheme.of(context).bodyMedium.override(
-                                  fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
-                                  color: FlutterFlowTheme.of(context).error,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.w600,
-                                  useGoogleFonts: !FlutterFlowTheme.of(context).bodyMediumIsCustom,
-                                ),
-                            elevation: 0.0,
-                            borderSide: BorderSide(color: FlutterFlowTheme.of(context).error),
-                            borderRadius: BorderRadius.circular(16.0),
-                          ),
+                          elevation: 0.0,
+                          borderSide: BorderSide(color: FlutterFlowTheme.of(context).error),
+                          borderRadius: BorderRadius.circular(16.0),
                         ),
                       ),
                     ]),
@@ -1778,6 +1827,26 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
     );
   }
 
+  // Helper: responsive 2-column row or stacked column
+  Widget _responsiveDetailRow(
+      BuildContext context, bool isMobile, List<Widget> children) {
+    if (isMobile) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: children
+            .expand((w) => [w, SizedBox(height: 12.0)])
+            .toList()
+          ..removeLast(),
+      );
+    }
+    return Row(
+      children: children
+          .expand((w) => [Expanded(child: w), SizedBox(width: 12.0)])
+          .toList()
+        ..removeLast(),
+    );
+  }
+
   // ─── Booking Dialog (supports time range) ───
   void _showBookingDialog(
       BuildContext context, DateTime date, int startSlot, [int? endSlot]) {
@@ -1792,6 +1861,8 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
         ? startTime
         : '$startTime - $endTime';
 
+    final isMobile = MediaQuery.sizeOf(context).width < kBreakpointSmall;
+
     showDialog(
       barrierDismissible: true,
       context: context,
@@ -1799,14 +1870,17 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
         return Dialog(
           elevation: 0,
           backgroundColor: Colors.transparent,
+          insetPadding: isMobile
+              ? EdgeInsets.symmetric(horizontal: 12.0, vertical: 24.0)
+              : EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
           child: Container(
-            width: 500.0,
+            width: isMobile ? double.infinity : 500.0,
             decoration: BoxDecoration(
               color: FlutterFlowTheme.of(context).primaryBackground,
               borderRadius: BorderRadius.circular(24.0),
             ),
             child: Padding(
-              padding: EdgeInsets.all(24.0),
+              padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -1906,6 +1980,30 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
 
     return StatefulBuilder(
       builder: (context, setDialogState) {
+        final isMobileDialog = MediaQuery.sizeOf(context).width < kBreakpointSmall;
+
+        // Helper: 2-column row on desktop, stacked on mobile
+        Widget twoColumnRow(Widget left, Widget right) {
+          if (isMobileDialog) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [left, SizedBox(height: 12.0), right],
+            );
+          }
+          return Row(children: [
+            Expanded(child: left),
+            SizedBox(width: 12.0),
+            Expanded(child: right),
+          ]);
+        }
+
+        Widget fieldColumn(String label, Widget field) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [_label(context, label), SizedBox(height: 4.0), field],
+          );
+        }
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -1922,69 +2020,39 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
             SizedBox(height: 16.0),
 
             // ─── Booker & Department ───
-            Row(children: [
-              Expanded(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                    _label(context, 'ชื่อผู้จอง'),
-                    SizedBox(height: 4.0),
-                    TextFormField(
-                      controller: _model.bookerNameTextController,
-                      focusNode: _model.bookerNameFocusNode,
-                      decoration: _inputDeco(context, 'ชื่อ-นามสกุล'),
-                      style: _bodyMediumStyle(context),
-                    ),
-                  ])),
-              SizedBox(width: 12.0),
-              Expanded(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                    _label(context, 'แผนก/หน่วยงาน'),
-                    SizedBox(height: 4.0),
-                    TextFormField(
-                      controller: _model.departmentTextController,
-                      focusNode: _model.departmentFocusNode,
-                      decoration: _inputDeco(context, 'แผนก/หน่วยงาน'),
-                      style: _bodyMediumStyle(context),
-                    ),
-                  ])),
-            ]),
+            twoColumnRow(
+              fieldColumn('ชื่อผู้จอง', TextFormField(
+                controller: _model.bookerNameTextController,
+                focusNode: _model.bookerNameFocusNode,
+                decoration: _inputDeco(context, 'ชื่อ-นามสกุล'),
+                style: _bodyMediumStyle(context),
+              )),
+              fieldColumn('แผนก/หน่วยงาน', TextFormField(
+                controller: _model.departmentTextController,
+                focusNode: _model.departmentFocusNode,
+                decoration: _inputDeco(context, 'แผนก/หน่วยงาน'),
+                style: _bodyMediumStyle(context),
+              )),
+            ),
             SizedBox(height: 16.0),
 
             // ─── Phone & Attendee ───
-            Row(children: [
-              Expanded(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                    _label(context, 'เบอร์ติดต่อ'),
-                    SizedBox(height: 4.0),
-                    TextFormField(
-                      controller: _model.phoneTextController,
-                      focusNode: _model.phoneFocusNode,
-                      keyboardType: TextInputType.phone,
-                      decoration: _inputDeco(context, 'เบอร์โทรศัพท์'),
-                      style: _bodyMediumStyle(context),
-                    ),
-                  ])),
-              SizedBox(width: 12.0),
-              Expanded(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                    _label(context, 'จำนวนผู้เข้าร่วม'),
-                    SizedBox(height: 4.0),
-                    TextFormField(
-                      controller: _model.attendeeCountTextController,
-                      focusNode: _model.attendeeCountFocusNode,
-                      keyboardType: TextInputType.number,
-                      decoration: _inputDeco(context, 'จำนวนคน'),
-                      style: _bodyMediumStyle(context),
-                    ),
-                  ])),
-            ]),
+            twoColumnRow(
+              fieldColumn('เบอร์ติดต่อ', TextFormField(
+                controller: _model.phoneTextController,
+                focusNode: _model.phoneFocusNode,
+                keyboardType: TextInputType.phone,
+                decoration: _inputDeco(context, 'เบอร์โทรศัพท์'),
+                style: _bodyMediumStyle(context),
+              )),
+              fieldColumn('จำนวนผู้เข้าร่วม', TextFormField(
+                controller: _model.attendeeCountTextController,
+                focusNode: _model.attendeeCountFocusNode,
+                keyboardType: TextInputType.number,
+                decoration: _inputDeco(context, 'จำนวนคน'),
+                style: _bodyMediumStyle(context),
+              )),
+            ),
             SizedBox(height: 16.0),
 
             // ─── Break (เบรค) ───
