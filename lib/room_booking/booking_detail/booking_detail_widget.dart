@@ -661,124 +661,133 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
   }
 
   void _showRoomPicker(BuildContext context) {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
-      ),
-      builder: (sheetContext) {
-        return Padding(
-          padding: EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40.0,
-                  height: 4.0,
-                  decoration: BoxDecoration(
-                    color: FlutterFlowTheme.of(context).accent3,
-                    borderRadius: BorderRadius.circular(100.0),
-                  ),
-                ),
-              ),
-              SizedBox(height: 16.0),
-              Text(
-                'เลือกห้องประชุม',
-                style: FlutterFlowTheme.of(context).titleSmall.override(
-                      fontFamily: FlutterFlowTheme.of(context).titleSmallFamily,
-                      letterSpacing: 0.0,
-                      fontWeight: FontWeight.w600,
-                      useGoogleFonts:
-                          !FlutterFlowTheme.of(context).titleSmallIsCustom,
-                    ),
-              ),
-              SizedBox(height: 12.0),
-              ...List.generate(_rooms.length, (index) {
-                final room = _rooms[index];
-                final isSelected = _model.selectedRoomIndex == index;
-                return Padding(
-                  padding: EdgeInsets.only(bottom: 8.0),
-                  child: InkWell(
-                    onTap: () {
-                      safeSetState(() => _model.selectedRoomIndex = index);
-                      Navigator.pop(sheetContext);
-                    },
-                    borderRadius: BorderRadius.circular(16.0),
-                    child: Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? FlutterFlowTheme.of(context).primary.withAlpha(20)
-                            : FlutterFlowTheme.of(context).primaryBackground,
-                        borderRadius: BorderRadius.circular(16.0),
-                        border: Border.all(
-                          color: isSelected
-                              ? FlutterFlowTheme.of(context).primary
-                              : FlutterFlowTheme.of(context).accent3,
-                          width: isSelected ? 1.5 : 0.5,
-                        ),
+      builder: (dialogContext) {
+        return Dialog(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: Container(
+            width: 480.0,
+            decoration: BoxDecoration(
+              color: FlutterFlowTheme.of(context).primaryBackground,
+              borderRadius: BorderRadius.circular(24.0),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'เลือกห้องประชุม',
+                        style: FlutterFlowTheme.of(context).titleSmall.override(
+                              fontFamily: FlutterFlowTheme.of(context).titleSmallFamily,
+                              letterSpacing: 0.0,
+                              fontWeight: FontWeight.w600,
+                              useGoogleFonts:
+                                  !FlutterFlowTheme.of(context).titleSmallIsCustom,
+                            ),
                       ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  room['name'] as String,
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        fontFamily: FlutterFlowTheme.of(context)
-                                            .bodyMediumFamily,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.w600,
-                                        useGoogleFonts: !FlutterFlowTheme.of(context)
-                                            .bodyMediumIsCustom,
-                                      ),
-                                ),
-                                SizedBox(height: 2.0),
-                                Text(
-                                  room['location'] as String,
-                                  style: FlutterFlowTheme.of(context)
-                                      .labelSmall
-                                      .override(
-                                        fontFamily: FlutterFlowTheme.of(context)
-                                            .labelSmallFamily,
-                                        color: FlutterFlowTheme.of(context)
-                                            .secondaryText,
-                                        letterSpacing: 0.0,
-                                        useGoogleFonts: !FlutterFlowTheme.of(context)
-                                            .labelSmallIsCustom,
-                                      ),
-                                ),
-                                SizedBox(height: 6.0),
-                                Wrap(
-                                  spacing: 6.0,
-                                  runSpacing: 4.0,
-                                  children: (room['equipment'] as List)
-                                      .cast<String>()
-                                      .map((e) => _buildEquipmentTag(context, e))
-                                      .toList(),
-                                ),
-                              ],
+                      FlutterFlowIconButton(
+                        borderRadius: 100.0,
+                        buttonSize: 36.0,
+                        icon: Icon(Icons.close_rounded,
+                            color: FlutterFlowTheme.of(context).secondaryText,
+                            size: 20.0),
+                        onPressed: () => Navigator.pop(dialogContext),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16.0),
+                  ...List.generate(_rooms.length, (index) {
+                    final room = _rooms[index];
+                    final isSelected = _model.selectedRoomIndex == index;
+                    return Padding(
+                      padding: EdgeInsets.only(bottom: 8.0),
+                      child: InkWell(
+                        onTap: () {
+                          safeSetState(() => _model.selectedRoomIndex = index);
+                          Navigator.pop(dialogContext);
+                        },
+                        borderRadius: BorderRadius.circular(16.0),
+                        child: Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? FlutterFlowTheme.of(context).primary.withAlpha(20)
+                                : FlutterFlowTheme.of(context).primaryBackground,
+                            borderRadius: BorderRadius.circular(16.0),
+                            border: Border.all(
+                              color: isSelected
+                                  ? FlutterFlowTheme.of(context).primary
+                                  : FlutterFlowTheme.of(context).accent3,
+                              width: isSelected ? 1.5 : 0.5,
                             ),
                           ),
-                          if (isSelected)
-                            Icon(Icons.check_circle_rounded,
-                                color: FlutterFlowTheme.of(context).primary,
-                                size: 24.0),
-                        ],
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      room['name'] as String,
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                            fontFamily: FlutterFlowTheme.of(context)
+                                                .bodyMediumFamily,
+                                            letterSpacing: 0.0,
+                                            fontWeight: FontWeight.w600,
+                                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                                .bodyMediumIsCustom,
+                                          ),
+                                    ),
+                                    SizedBox(height: 2.0),
+                                    Text(
+                                      room['location'] as String,
+                                      style: FlutterFlowTheme.of(context)
+                                          .labelSmall
+                                          .override(
+                                            fontFamily: FlutterFlowTheme.of(context)
+                                                .labelSmallFamily,
+                                            color: FlutterFlowTheme.of(context)
+                                                .secondaryText,
+                                            letterSpacing: 0.0,
+                                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                                .labelSmallIsCustom,
+                                          ),
+                                    ),
+                                    SizedBox(height: 6.0),
+                                    Wrap(
+                                      spacing: 6.0,
+                                      runSpacing: 4.0,
+                                      children: (room['equipment'] as List)
+                                          .cast<String>()
+                                          .map((e) => _buildEquipmentTag(context, e))
+                                          .toList(),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (isSelected)
+                                Icon(Icons.check_circle_rounded,
+                                    color: FlutterFlowTheme.of(context).primary,
+                                    size: 24.0),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                );
-              }),
-            ],
+                    );
+                  }),
+                ],
+              ),
+            ),
           ),
         );
       },
