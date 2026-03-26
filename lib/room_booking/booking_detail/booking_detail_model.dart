@@ -35,7 +35,7 @@ class BookingDetailModel extends FlutterFlowModel<BookingDetailWidget> {
   TextEditingController? noteTextController;
 
   // Break & Meal options
-  // Break: null = not selected, 'morning' = เบรคเช้า, 'afternoon' = เบรคบ่าย
+  // Break: null = not selected, 'morning' = เบรคเช้า, 'afternoon' = เบรคบ่าย, 'none' = ไม่รับ
   String? selectedBreak;
   bool? wantsDrink;
 

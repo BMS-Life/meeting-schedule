@@ -31,6 +31,9 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
     '18.00', '19.00', '20.00', '21.00', '22.00', '23.00',
   ];
 
+  // Form validation errors (key = field name, value = error message)
+  Map<String, String?> _formErrors = {};
+
   // Hover state for showing booking button
   int? _hoveredSlotIndex;
   DateTime? _hoveredSlotDate;
@@ -168,11 +171,12 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
     _model = createModel(context, () => BookingDetailModel());
     _model.subjectTextController ??= TextEditingController();
     _model.subjectFocusNode ??= FocusNode();
-    _model.bookerNameTextController ??= TextEditingController();
+    // Pre-fill from user profile (simulated login data)
+    _model.bookerNameTextController ??= TextEditingController(text: 'นายสมชาย ใจดี');
     _model.bookerNameFocusNode ??= FocusNode();
-    _model.departmentTextController ??= TextEditingController();
+    _model.departmentTextController ??= TextEditingController(text: 'แผนกเทคโนโลยีสารสนเทศ');
     _model.departmentFocusNode ??= FocusNode();
-    _model.phoneTextController ??= TextEditingController();
+    _model.phoneTextController ??= TextEditingController(text: '089-123-4567');
     _model.phoneFocusNode ??= FocusNode();
     _model.attendeeCountTextController ??= TextEditingController();
     _model.attendeeCountFocusNode ??= FocusNode();
@@ -1674,65 +1678,76 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
               color: FlutterFlowTheme.of(context).primaryBackground,
               borderRadius: BorderRadius.circular(24.0),
             ),
-            child: Padding(
-              padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ─── Sticky Header ───
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(
+                      isMobile ? 16.0 : 24.0, isMobile ? 16.0 : 24.0,
+                      isMobile ? 16.0 : 24.0, 0.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'รายละเอียดการประชุม',
-                        style: FlutterFlowTheme.of(context).titleSmall.override(
-                              fontFamily: FlutterFlowTheme.of(context).titleSmallFamily,
-                              letterSpacing: 0.0,
-                              fontWeight: FontWeight.w600,
-                              useGoogleFonts: !FlutterFlowTheme.of(context).titleSmallIsCustom,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'รายละเอียดการประชุม',
+                            style: FlutterFlowTheme.of(context).titleSmall.override(
+                                  fontFamily: FlutterFlowTheme.of(context).titleSmallFamily,
+                                  letterSpacing: 0.0,
+                                  fontWeight: FontWeight.w600,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context).titleSmallIsCustom,
+                                ),
+                          ),
+                          FlutterFlowIconButton(
+                            borderRadius: 100.0,
+                            buttonSize: 36.0,
+                            icon: Icon(Icons.close_rounded,
+                                color: FlutterFlowTheme.of(context).secondaryText, size: 20.0),
+                            onPressed: () => Navigator.pop(dialogContext),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12.0),
+                      // Time info bar
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(12.0),
+                        decoration: BoxDecoration(
+                          color: FlutterFlowTheme.of(context).primary.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(16.0),
+                        ),
+                        child: Row(children: [
+                          Icon(Icons.event_available_rounded,
+                              color: FlutterFlowTheme.of(context).primary, size: 20.0),
+                          SizedBox(width: 8.0),
+                          Expanded(
+                            child: Text(
+                              booking['timeText'] ?? '',
+                              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                    fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
+                                    color: FlutterFlowTheme.of(context).primary,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.w600,
+                                    useGoogleFonts: !FlutterFlowTheme.of(context).bodyMediumIsCustom,
+                                  ),
                             ),
+                          ),
+                        ]),
                       ),
-                      FlutterFlowIconButton(
-                        borderRadius: 100.0,
-                        buttonSize: 36.0,
-                        icon: Icon(Icons.close_rounded,
-                            color: FlutterFlowTheme.of(context).secondaryText, size: 20.0),
-                        onPressed: () => Navigator.pop(dialogContext),
-                      ),
+                      SizedBox(height: 16.0),
                     ],
                   ),
-                  SizedBox(height: 12.0),
-                  // Time info bar
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(12.0),
-                    decoration: BoxDecoration(
-                      color: FlutterFlowTheme.of(context).primary.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(16.0),
-                    ),
-                    child: Row(children: [
-                      Icon(Icons.event_available_rounded,
-                          color: FlutterFlowTheme.of(context).primary, size: 20.0),
-                      SizedBox(width: 8.0),
-                      Expanded(
-                        child: Text(
-                          booking['timeText'] ?? '',
-                          style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
-                                color: FlutterFlowTheme.of(context).primary,
-                                letterSpacing: 0.0,
-                                fontWeight: FontWeight.w600,
-                                useGoogleFonts: !FlutterFlowTheme.of(context).bodyMediumIsCustom,
-                              ),
-                        ),
-                      ),
-                    ]),
-                  ),
-                  SizedBox(height: 16.0),
-                  // Scrollable form content
-                  Flexible(
-                    child: SingleChildScrollView(
+                ),
+                // ─── Scrollable Content ───
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsetsDirectional.fromSTEB(
+                        isMobile ? 16.0 : 24.0, 0.0,
+                        isMobile ? 16.0 : 24.0, 0.0),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1779,80 +1794,83 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
                                 ? booking['note']
                                 : '-',
                           ),
-                        ],
-                      ),
+                  ],  // content Column children
+                ),  // content Column
+              ),  // SingleChildScrollView
+            ),  // Flexible
+            // ─── Sticky Footer: Action Buttons ───
+            if (status != 'ended')
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(
+                    isMobile ? 16.0 : 24.0, 12.0,
+                    isMobile ? 16.0 : 24.0, isMobile ? 16.0 : 24.0),
+                child: _responsiveDetailRow(context, isMobile, [
+                  FFButtonWidget(
+                    onPressed: () {
+                      Navigator.pop(dialogContext);
+                      _showBookingDialog(context, _model.selectedDate,
+                          booking['startSlot'] as int,
+                          booking['endSlot'] as int);
+                    },
+                    text: 'แก้ไขการจอง',
+                    icon: Icon(Icons.edit_rounded, size: 18.0),
+                    options: FFButtonOptions(
+                      width: double.infinity,
+                      height: 48.0,
+                      padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                      iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                      iconColor: FlutterFlowTheme.of(context).primaryBackground,
+                      color: FlutterFlowTheme.of(context).primary,
+                      textStyle: FlutterFlowTheme.of(context).bodyMedium.override(
+                            fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
+                            color: FlutterFlowTheme.of(context).primaryBackground,
+                            letterSpacing: 0.0,
+                            fontWeight: FontWeight.w600,
+                            useGoogleFonts: !FlutterFlowTheme.of(context).bodyMediumIsCustom,
+                          ),
+                      elevation: 0.0,
+                      borderRadius: BorderRadius.circular(16.0),
                     ),
                   ),
-                  SizedBox(height: 16.0),
-                  // Action buttons: Edit + Cancel (fixed at bottom)
-                  if (status != 'ended')
-                    _responsiveDetailRow(context, isMobile, [
-                      FFButtonWidget(
-                        onPressed: () {
-                          Navigator.pop(dialogContext);
-                          _showBookingDialog(context, _model.selectedDate,
-                              booking['startSlot'] as int,
-                              booking['endSlot'] as int);
-                        },
-                        text: 'แก้ไขการจอง',
-                        icon: Icon(Icons.edit_rounded, size: 18.0),
-                        options: FFButtonOptions(
-                          width: double.infinity,
-                          height: 48.0,
-                          padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                          iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                          iconColor: FlutterFlowTheme.of(context).primaryBackground,
-                          color: FlutterFlowTheme.of(context).primary,
-                          textStyle: FlutterFlowTheme.of(context).bodyMedium.override(
-                                fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
-                                color: FlutterFlowTheme.of(context).primaryBackground,
-                                letterSpacing: 0.0,
-                                fontWeight: FontWeight.w600,
-                                useGoogleFonts: !FlutterFlowTheme.of(context).bodyMediumIsCustom,
-                              ),
-                          elevation: 0.0,
-                          borderRadius: BorderRadius.circular(16.0),
+                  FFButtonWidget(
+                    onPressed: () {
+                      Navigator.pop(dialogContext);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('ยกเลิกการจองเรียบร้อยแล้ว'),
+                          backgroundColor: FlutterFlowTheme.of(context).error,
                         ),
-                      ),
-                      FFButtonWidget(
-                        onPressed: () {
-                          Navigator.pop(dialogContext);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('ยกเลิกการจองเรียบร้อยแล้ว'),
-                              backgroundColor: FlutterFlowTheme.of(context).error,
-                            ),
-                          );
-                        },
-                        text: 'ยกเลิกการจอง',
-                        icon: Icon(Icons.cancel_rounded, size: 18.0),
-                        options: FFButtonOptions(
-                          width: double.infinity,
-                          height: 48.0,
-                          padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                          iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                          iconColor: FlutterFlowTheme.of(context).error,
-                          color: FlutterFlowTheme.of(context).primaryBackground,
-                          textStyle: FlutterFlowTheme.of(context).bodyMedium.override(
-                                fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
-                                color: FlutterFlowTheme.of(context).error,
-                                letterSpacing: 0.0,
-                                fontWeight: FontWeight.w600,
-                                useGoogleFonts: !FlutterFlowTheme.of(context).bodyMediumIsCustom,
-                              ),
-                          elevation: 0.0,
-                          borderSide: BorderSide(color: FlutterFlowTheme.of(context).error),
-                          borderRadius: BorderRadius.circular(16.0),
-                        ),
-                      ),
-                    ]),
-                ],
+                      );
+                    },
+                    text: 'ยกเลิกการจอง',
+                    icon: Icon(Icons.cancel_rounded, size: 18.0),
+                    options: FFButtonOptions(
+                      width: double.infinity,
+                      height: 48.0,
+                      padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                      iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                      iconColor: FlutterFlowTheme.of(context).error,
+                      color: FlutterFlowTheme.of(context).primaryBackground,
+                      textStyle: FlutterFlowTheme.of(context).bodyMedium.override(
+                            fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
+                            color: FlutterFlowTheme.of(context).error,
+                            letterSpacing: 0.0,
+                            fontWeight: FontWeight.w600,
+                            useGoogleFonts: !FlutterFlowTheme.of(context).bodyMediumIsCustom,
+                          ),
+                      elevation: 0.0,
+                      borderSide: BorderSide(color: FlutterFlowTheme.of(context).error),
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                  ),
+                ]),
               ),
-            ),
-          ),
-        );
-      },
-    );
+          ],  // outer Column children
+        ),  // outer Column
+      ),  // Container
+        );  // Dialog
+      },  // builder
+    );  // showDialog
   }
 
   Widget _readOnlyField(BuildContext context, String value) {
@@ -1930,91 +1948,106 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
               : EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
           child: Container(
             width: isMobile ? double.infinity : 500.0,
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.sizeOf(context).height * 0.85,
+            ),
             decoration: BoxDecoration(
               color: FlutterFlowTheme.of(context).primaryBackground,
               borderRadius: BorderRadius.circular(24.0),
             ),
-            child: Padding(
-              padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'จองห้องประชุม',
-                          style: FlutterFlowTheme.of(context)
-                              .titleSmall
-                              .override(
-                                fontFamily:
-                                    FlutterFlowTheme.of(context)
-                                        .titleSmallFamily,
-                                letterSpacing: 0.0,
-                                fontWeight: FontWeight.w600,
-                                useGoogleFonts:
-                                    !FlutterFlowTheme.of(context)
-                                        .titleSmallIsCustom,
-                              ),
-                        ),
-                        FlutterFlowIconButton(
-                          borderRadius: 100.0,
-                          buttonSize: 36.0,
-                          icon: Icon(Icons.close_rounded,
-                              color: FlutterFlowTheme.of(context)
-                                  .secondaryText,
-                              size: 20.0),
-                          onPressed: () =>
-                              Navigator.pop(dialogContext),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8.0),
-                    // Date & time range info
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(12.0),
-                      decoration: BoxDecoration(
-                        color: FlutterFlowTheme.of(context)
-                            .primary
-                            .withAlpha(20),
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      child: Row(children: [
-                        Icon(Icons.event_available_rounded,
-                            color:
-                                FlutterFlowTheme.of(context).primary,
-                            size: 20.0),
-                        SizedBox(width: 8.0),
-                        Expanded(
-                          child: Text(
-                            '${_thaiDayNames[date.weekday - 1]} ${date.day} ${_thaiMonthsShort[date.month]} ${date.year + 543}  •  $timeDisplay',
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ─── Sticky Header ───
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(
+                      isMobile ? 16.0 : 24.0, isMobile ? 16.0 : 24.0,
+                      isMobile ? 16.0 : 24.0, 0.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'จองห้องประชุม',
                             style: FlutterFlowTheme.of(context)
-                                .bodyMedium
+                                .titleSmall
                                 .override(
-                                  fontFamily:
-                                      FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily,
-                                  color: FlutterFlowTheme.of(context)
-                                      .primary,
+                                  fontFamily: FlutterFlowTheme.of(context)
+                                      .titleSmallFamily,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.w600,
-                                  useGoogleFonts:
-                                      !FlutterFlowTheme.of(context)
-                                          .bodyMediumIsCustom,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .titleSmallIsCustom,
                                 ),
                           ),
+                          FlutterFlowIconButton(
+                            borderRadius: 100.0,
+                            buttonSize: 36.0,
+                            icon: Icon(Icons.close_rounded,
+                                color: FlutterFlowTheme.of(context).secondaryText,
+                                size: 20.0),
+                            onPressed: () => Navigator.pop(dialogContext),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8.0),
+                      // Date & time range info
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(12.0),
+                        decoration: BoxDecoration(
+                          color: FlutterFlowTheme.of(context)
+                              .primary
+                              .withAlpha(20),
+                          borderRadius: BorderRadius.circular(16.0),
                         ),
-                      ]),
-                    ),
-                    SizedBox(height: 16.0),
-                    _buildBookingFormContent(context, dialogContext),
-                  ],
+                        child: Row(children: [
+                          Icon(Icons.event_available_rounded,
+                              color: FlutterFlowTheme.of(context).primary,
+                              size: 20.0),
+                          SizedBox(width: 8.0),
+                          Expanded(
+                            child: Text(
+                              '${_thaiDayNames[date.weekday - 1]} ${date.day} ${_thaiMonthsShort[date.month]} ${date.year + 543}  •  $timeDisplay',
+                              style: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .override(
+                                    fontFamily: FlutterFlowTheme.of(context)
+                                        .bodyMediumFamily,
+                                    color: FlutterFlowTheme.of(context).primary,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.w600,
+                                    useGoogleFonts: !FlutterFlowTheme.of(context)
+                                        .bodyMediumIsCustom,
+                                  ),
+                            ),
+                          ),
+                        ]),
+                      ),
+                      SizedBox(height: 16.0),
+                    ],
+                  ),
                 ),
-              ),
+                // ─── Scrollable Form Content ───
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsetsDirectional.fromSTEB(
+                        isMobile ? 16.0 : 24.0, 0.0,
+                        isMobile ? 16.0 : 24.0, 0.0),
+                    child: _buildBookingFormContent(context, dialogContext, includeSubmit: false),
+                  ),
+                ),
+                // ─── Sticky Footer: Submit Button ───
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(
+                      isMobile ? 16.0 : 24.0, 12.0,
+                      isMobile ? 16.0 : 24.0, isMobile ? 16.0 : 24.0),
+                  child: _buildSubmitButton(context, dialogContext),
+                ),
+              ],
             ),
           ),
         );
@@ -2023,7 +2056,7 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
   }
 
   Widget _buildBookingFormContent(
-      BuildContext context, BuildContext dialogContext) {
+      BuildContext context, BuildContext dialogContext, {bool includeSubmit = true}) {
     // Equipment options available for this room
     const equipmentOptions = [
       'โปรเจคเตอร์',
@@ -2063,15 +2096,18 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // ─── Subject ───
-            _label(context, 'หัวข้อการประชุม / วัตถุประสงค์'),
+            // ─── Subject (required) ───
+            _requiredLabel(context, 'หัวข้อการประชุม / วัตถุประสงค์'),
             SizedBox(height: 4.0),
             TextFormField(
               controller: _model.subjectTextController,
               focusNode: _model.subjectFocusNode,
               decoration: _inputDeco(context, 'ระบุหัวข้อการประชุม'),
               style: _bodyMediumStyle(context),
+              onChanged: (_) => setDialogState(() => _formErrors.remove('subject')),
             ),
+            if (_formErrors['subject'] != null)
+              _errorText(context, _formErrors['subject']!),
             SizedBox(height: 16.0),
 
             // ─── Booker & Department ───
@@ -2100,18 +2136,28 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
                 decoration: _inputDeco(context, 'เบอร์โทรศัพท์'),
                 style: _bodyMediumStyle(context),
               )),
-              fieldColumn('จำนวนผู้เข้าร่วม', TextFormField(
-                controller: _model.attendeeCountTextController,
-                focusNode: _model.attendeeCountFocusNode,
-                keyboardType: TextInputType.number,
-                decoration: _inputDeco(context, 'จำนวนคน'),
-                style: _bodyMediumStyle(context),
-              )),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _requiredLabel(context, 'จำนวนผู้เข้าร่วม'),
+                  SizedBox(height: 4.0),
+                  TextFormField(
+                    controller: _model.attendeeCountTextController,
+                    focusNode: _model.attendeeCountFocusNode,
+                    keyboardType: TextInputType.number,
+                    decoration: _inputDeco(context, 'จำนวนคน'),
+                    style: _bodyMediumStyle(context),
+                    onChanged: (_) => setDialogState(() => _formErrors.remove('attendeeCount')),
+                  ),
+                  if (_formErrors['attendeeCount'] != null)
+                    _errorText(context, _formErrors['attendeeCount']!),
+                ],
+              ),
             ),
             SizedBox(height: 16.0),
 
-            // ─── Break (เบรค) ───
-            _label(context, 'เบรค'),
+            // ─── Break (เบรค) — required ───
+            _requiredLabel(context, 'เบรค'),
             SizedBox(height: 8.0),
             Wrap(
               spacing: 8.0,
@@ -2125,7 +2171,8 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
                   onTap: () => setDialogState(() {
                     _model.selectedBreak =
                         _model.selectedBreak == 'morning' ? null : 'morning';
-                    if (_model.selectedBreak == null) _model.wantsDrink = null;
+                    if (_model.selectedBreak != 'morning' && _model.selectedBreak != 'afternoon') _model.wantsDrink = null;
+                    _formErrors.remove('break');
                   }),
                 ),
                 _buildOptionChip(
@@ -2136,13 +2183,28 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
                   onTap: () => setDialogState(() {
                     _model.selectedBreak =
                         _model.selectedBreak == 'afternoon' ? null : 'afternoon';
-                    if (_model.selectedBreak == null) _model.wantsDrink = null;
+                    if (_model.selectedBreak != 'morning' && _model.selectedBreak != 'afternoon') _model.wantsDrink = null;
+                    _formErrors.remove('break');
+                  }),
+                ),
+                _buildOptionChip(
+                  context: context,
+                  label: 'ไม่รับเบรค',
+                  icon: Icons.block_rounded,
+                  isSelected: _model.selectedBreak == 'none',
+                  onTap: () => setDialogState(() {
+                    _model.selectedBreak =
+                        _model.selectedBreak == 'none' ? null : 'none';
+                    _model.wantsDrink = null;
+                    _formErrors.remove('break');
                   }),
                 ),
               ],
             ),
-            // Show drink choice only when a break is selected
-            if (_model.selectedBreak != null) ...[
+            if (_formErrors['break'] != null)
+              _errorText(context, _formErrors['break']!),
+            // Show drink choice only when a break is selected (not 'none')
+            if (_model.selectedBreak != null && _model.selectedBreak != 'none') ...[
               SizedBox(height: 8.0),
               _label(context, 'น้ำดื่ม'),
               SizedBox(height: 8.0),
@@ -2175,8 +2237,8 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
             ],
             SizedBox(height: 16.0),
 
-            // ─── Lunch (อาหารกลางวัน) ───
-            _label(context, 'อาหารกลางวัน'),
+            // ─── Lunch (อาหารกลางวัน) — required ───
+            _requiredLabel(context, 'อาหารกลางวัน'),
             SizedBox(height: 8.0),
             Wrap(
               spacing: 8.0,
@@ -2190,6 +2252,7 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
                   onTap: () => setDialogState(() {
                     _model.wantsLunch =
                         _model.wantsLunch == true ? null : true;
+                    _formErrors.remove('lunch');
                   }),
                 ),
                 _buildOptionChip(
@@ -2200,10 +2263,13 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
                   onTap: () => setDialogState(() {
                     _model.wantsLunch =
                         _model.wantsLunch == false ? null : false;
+                    _formErrors.remove('lunch');
                   }),
                 ),
               ],
             ),
+            if (_formErrors['lunch'] != null)
+              _errorText(context, _formErrors['lunch']!),
             // Show allergy note only when lunch = รับ
             if (_model.wantsLunch == true) ...[
               SizedBox(height: 8.0),
@@ -2254,6 +2320,7 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
               decoration: _inputDeco(context, 'ระบุหมายเหตุ (ถ้ามี)'),
               style: _bodyMediumStyle(context),
             ),
+            if (includeSubmit) ...[
             SizedBox(height: 16.0),
 
             // ─── Submit ───
@@ -2296,8 +2363,86 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
                 borderRadius: BorderRadius.circular(16.0),
               ),
             ),
+            ],  // end if (includeSubmit)
           ],
         );
+      },
+    );
+  }
+
+  // ─── Validate booking form ───
+  bool _validateBookingForm(void Function(void Function()) setDialogState) {
+    _formErrors.clear();
+
+    if (_model.subjectTextController?.text.trim().isEmpty ?? true) {
+      _formErrors['subject'] = 'กรุณาระบุหัวข้อการประชุม';
+    }
+    if (_model.attendeeCountTextController?.text.trim().isEmpty ?? true) {
+      _formErrors['attendeeCount'] = 'กรุณาระบุจำนวนผู้เข้าร่วม';
+    }
+    if (_model.selectedBreak == null) {
+      _formErrors['break'] = 'กรุณาเลือกเบรค';
+    }
+    if (_model.wantsLunch == null) {
+      _formErrors['lunch'] = 'กรุณาเลือกอาหารกลางวัน';
+    }
+
+    setDialogState(() {});
+
+    if (_formErrors.isNotEmpty) {
+      // Focus on first error field
+      if (_formErrors.containsKey('subject')) {
+        _model.subjectFocusNode?.requestFocus();
+      } else if (_formErrors.containsKey('attendeeCount')) {
+        _model.attendeeCountFocusNode?.requestFocus();
+      }
+      return false;
+    }
+    return true;
+  }
+
+  // ─── Sticky Submit Button (extracted) ───
+  Widget _buildSubmitButton(BuildContext context, BuildContext dialogContext) {
+    return StatefulBuilder(
+      builder: (context, setButtonState) {
+        return FFButtonWidget(
+          onPressed: () async {
+            if (!_validateBookingForm(setButtonState)) return;
+            Navigator.pop(dialogContext);
+            await showDialog(
+                barrierDismissible: false,
+                context: context,
+                builder: (ctx) {
+                  return Dialog(
+                      elevation: 0,
+                      insetPadding: EdgeInsets.zero,
+                      backgroundColor: Colors.transparent,
+                      alignment: AlignmentDirectional(0.0, 0.0)
+                          .resolve(Directionality.of(context)),
+                      child: BookingDoneWidget());
+                });
+          },
+      text: 'ยืนยันการจอง',
+      icon: Icon(Icons.check_rounded, size: 20.0),
+      options: FFButtonOptions(
+        width: double.infinity,
+        height: 52.0,
+        padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+        iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+        iconColor: FlutterFlowTheme.of(context).primaryBackground,
+        color: FlutterFlowTheme.of(context).primary,
+        textStyle: FlutterFlowTheme.of(context).bodyMedium.override(
+              fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
+              color: FlutterFlowTheme.of(context).primaryBackground,
+              letterSpacing: 0.0,
+              fontWeight: FontWeight.w600,
+              useGoogleFonts:
+                  !FlutterFlowTheme.of(context).bodyMediumIsCustom,
+            ),
+        elevation: 0.0,
+        borderRadius: BorderRadius.circular(16.0),
+      ),
+    );
       },
     );
   }
@@ -2433,5 +2578,41 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
               useGoogleFonts: !FlutterFlowTheme.of(context)
                   .bodySmallIsCustom,
             ));
+  }
+
+  Widget _requiredLabel(BuildContext context, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          text,
+          style: FlutterFlowTheme.of(context).bodySmall.override(
+                fontFamily: FlutterFlowTheme.of(context).bodySmallFamily,
+                letterSpacing: 0.0,
+                useGoogleFonts:
+                    !FlutterFlowTheme.of(context).bodySmallIsCustom,
+              ),
+        ),
+        Text(' *',
+            style: TextStyle(
+                color: FlutterFlowTheme.of(context).error,
+                fontSize: 12.0,
+                fontWeight: FontWeight.w600)),
+      ],
+    );
+  }
+
+  Widget _errorText(BuildContext context, String text) {
+    return Padding(
+      padding: EdgeInsets.only(top: 4.0),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: FlutterFlowTheme.of(context).error,
+          fontSize: 11.0,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
   }
 }
