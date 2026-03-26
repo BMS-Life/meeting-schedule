@@ -211,73 +211,123 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
 
   // ─── Sample booking data (slot index = hour, 0=00:00, 8=08:00, etc.) ───
   List<Map<String, dynamic>> _getBookingsForDate(DateTime date) {
-    if (date.weekday == DateTime.monday) {
-      return [
-        {
-          'startSlot': 8,
-          'endSlot': 10,
-          'title': 'ห้องประชุมที่ 2',
-          'location': 'อาคารเหล่าธงสิงห์ ห้องอาหาร',
-          'timeText': '08:00-10:00 น.',
-          'status': 'ended',
-          'statusText': 'การประชุมสิ้นสุดแล้ว',
-          'subject': 'ประชุมวางแผนรายไตรมาส',
-          'booker': 'นายทดสอบ ทดสอบ',
-          'department': 'แผนกทรัพยากร',
-          'phone': '081-234-5678',
-          'attendeeCount': '15',
-          'note': 'เตรียมเอกสารรายงานผลไตรมาสก่อนหน้า',
-        },
-        {
-          'startSlot': 10,
-          'endSlot': 12,
-          'title': 'ห้องประชุมที่ 2',
-          'location': 'อาคารเหล่าธงสิงห์ ห้องอาหาร',
-          'timeText': '10:00-12:00 น.',
-          'status': 'active',
-          'statusText': 'กำลังประชุม : แผนทบทวน Q2',
-          'subject': 'แผนทบทวน Q2',
-          'booker': 'นายทดสอบ ทดสอบ',
-          'department': 'แผนกการเงิน',
-          'phone': '089-876-5432',
-          'attendeeCount': '8',
-          'note': '',
-        },
-        {
-          'startSlot': 13,
-          'endSlot': 16,
-          'title': 'ห้องประชุมที่ 2',
-          'location': 'อาคารเหล่าธงสิงห์ ห้องอาหาร',
-          'timeText': '13:00-16:00 น.',
-          'status': 'upcoming',
-          'statusText': 'รอถึงเวลาประชุม',
-          'subject': 'อบรมระบบจองห้องประชุม',
-          'booker': 'นายทดสอบ ทดสอบ',
-          'department': 'แผนก IT',
-          'phone': '062-345-6789',
-          'attendeeCount': '20',
-          'note': 'ต้องการโปรเจคเตอร์และไมโครโฟน',
-        },
-      ];
-    } else if (date.weekday == DateTime.wednesday) {
-      return [
-        {
-          'startSlot': 9,
-          'endSlot': 12,
-          'title': 'ห้องประชุมที่ 2',
-          'location': 'อาคารเหล่าธงสิงห์ ห้องอาหาร',
-          'timeText': '09:00-12:00 น.',
-          'status': 'upcoming',
-          'statusText': 'รอถึงเวลาประชุม',
-          'subject': 'Sprint Review',
-          'booker': 'นายทดสอบ ทดสอบ',
-          'department': 'แผนกพัฒนาธุรกิจ',
-          'phone': '091-111-2222',
-          'attendeeCount': '10',
-          'note': '',
-        },
-      ];
+    final roomIndex = _model.selectedRoomIndex;
+    final room = _currentRoom;
+    final roomName = room['name'] as String;
+    final roomLocation = room['location'] as String;
+
+    // Room 0: ห้องประชุมที่ 1
+    if (roomIndex == 0) {
+      if (date.weekday == DateTime.monday) {
+        return [
+          {
+            'startSlot': 8, 'endSlot': 10,
+            'title': roomName, 'location': roomLocation,
+            'timeText': '08:00-10:00 น.',
+            'status': 'ended', 'statusText': 'การประชุมสิ้นสุดแล้ว',
+            'subject': 'ประชุมวางแผนรายไตรมาส',
+            'booker': 'นายสมชาย ใจดี', 'department': 'แผนกทรัพยากร',
+            'phone': '081-234-5678', 'attendeeCount': '15',
+            'note': 'เตรียมเอกสารรายงานผลไตรมาสก่อนหน้า',
+          },
+          {
+            'startSlot': 10, 'endSlot': 12,
+            'title': roomName, 'location': roomLocation,
+            'timeText': '10:00-12:00 น.',
+            'status': 'active', 'statusText': 'กำลังประชุม : แผนทบทวน Q2',
+            'subject': 'แผนทบทวน Q2',
+            'booker': 'นางสาวมณี ศรีสุข', 'department': 'แผนกการเงิน',
+            'phone': '089-876-5432', 'attendeeCount': '8', 'note': '',
+          },
+          {
+            'startSlot': 13, 'endSlot': 16,
+            'title': roomName, 'location': roomLocation,
+            'timeText': '13:00-16:00 น.',
+            'status': 'upcoming', 'statusText': 'รอถึงเวลาประชุม',
+            'subject': 'อบรมระบบจองห้องประชุม',
+            'booker': 'นายวิชัย ธนกิจ', 'department': 'แผนก IT',
+            'phone': '062-345-6789', 'attendeeCount': '20',
+            'note': 'ต้องการโปรเจคเตอร์และไมโครโฟน',
+          },
+        ];
+      } else if (date.weekday == DateTime.wednesday) {
+        return [
+          {
+            'startSlot': 9, 'endSlot': 11,
+            'title': roomName, 'location': roomLocation,
+            'timeText': '09:00-11:00 น.',
+            'status': 'upcoming', 'statusText': 'รอถึงเวลาประชุม',
+            'subject': 'ประชุมทีม Dev',
+            'booker': 'นายสมชาย ใจดี', 'department': 'แผนก IT',
+            'phone': '081-234-5678', 'attendeeCount': '12', 'note': '',
+          },
+        ];
+      } else if (date.weekday == DateTime.friday) {
+        return [
+          {
+            'startSlot': 14, 'endSlot': 17,
+            'title': roomName, 'location': roomLocation,
+            'timeText': '14:00-17:00 น.',
+            'status': 'upcoming', 'statusText': 'รอถึงเวลาประชุม',
+            'subject': 'ประชุมสรุปงานประจำสัปดาห์',
+            'booker': 'นายสมชาย ใจดี', 'department': 'แผนก IT',
+            'phone': '081-234-5678', 'attendeeCount': '10', 'note': '',
+          },
+        ];
+      }
     }
+
+    // Room 1: ห้องประชุมที่ 2
+    if (roomIndex == 1) {
+      if (date.weekday == DateTime.tuesday) {
+        return [
+          {
+            'startSlot': 9, 'endSlot': 12,
+            'title': roomName, 'location': roomLocation,
+            'timeText': '09:00-12:00 น.',
+            'status': 'active', 'statusText': 'กำลังประชุม : Sprint Review',
+            'subject': 'Sprint Review',
+            'booker': 'นางสาวสุภาพร นิลเขต', 'department': 'แผนกพัฒนาธุรกิจ',
+            'phone': '091-111-2222', 'attendeeCount': '10', 'note': '',
+          },
+          {
+            'startSlot': 13, 'endSlot': 15,
+            'title': roomName, 'location': roomLocation,
+            'timeText': '13:00-15:00 น.',
+            'status': 'upcoming', 'statusText': 'รอถึงเวลาประชุม',
+            'subject': 'ประชุมงบประมาณประจำเดือน',
+            'booker': 'นายนิธิ กมลวิจิตร', 'department': 'แผนกบัญชี',
+            'phone': '088-999-8888', 'attendeeCount': '6', 'note': '',
+          },
+        ];
+      } else if (date.weekday == DateTime.thursday) {
+        return [
+          {
+            'startSlot': 8, 'endSlot': 12,
+            'title': roomName, 'location': roomLocation,
+            'timeText': '08:00-12:00 น.',
+            'status': 'upcoming', 'statusText': 'รอถึงเวลาประชุม',
+            'subject': 'อบรมพนักงานใหม่',
+            'booker': 'นางสมหญิง ใจงาม', 'department': 'แผนก HR',
+            'phone': '085-555-6666', 'attendeeCount': '25',
+            'note': 'เตรียมอาหารกลางวัน',
+          },
+        ];
+      } else if (date.weekday == DateTime.friday) {
+        return [
+          {
+            'startSlot': 10, 'endSlot': 12,
+            'title': roomName, 'location': roomLocation,
+            'timeText': '10:00-12:00 น.',
+            'status': 'upcoming', 'statusText': 'รอถึงเวลาประชุม',
+            'subject': 'Workshop ทีม Design',
+            'booker': 'นางสาวพิมพ์ลภัส จันทร์ดี', 'department': 'แผนก UX/UI',
+            'phone': '063-777-8888', 'attendeeCount': '8', 'note': '',
+          },
+        ];
+      }
+    }
+
     return [];
   }
 
@@ -490,7 +540,8 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16.0),
-        child: IntrinsicHeight(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: 106.0),
           child: Stack(
             children: [
               // Text content
@@ -534,21 +585,21 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 4.0),
+                    SizedBox(height: 2.0),
                     Text(
                       room['location'] as String,
                       style: FlutterFlowTheme.of(context)
-                          .bodySmall
+                          .labelSmall
                           .override(
                             fontFamily: FlutterFlowTheme.of(context)
-                                .bodySmallFamily,
+                                .labelSmallFamily,
                             color: FlutterFlowTheme.of(context).secondaryText,
                             letterSpacing: 0.0,
                             useGoogleFonts: !FlutterFlowTheme.of(context)
-                                .bodySmallIsCustom,
+                                .labelSmallIsCustom,
                           ),
                     ),
-                    SizedBox(height: 8.0),
+                    SizedBox(height: 6.0),
                     // Equipment tags
                     Wrap(
                       spacing: 8.0,
