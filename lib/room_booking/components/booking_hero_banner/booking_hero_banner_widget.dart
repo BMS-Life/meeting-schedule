@@ -63,12 +63,13 @@ class _BookingHeroBannerWidgetState extends State<BookingHeroBannerWidget> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16.0),
-        child: IntrinsicHeight(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: 120.0),
           child: Stack(
             children: [
               // Left: Text content
               Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 16.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,7 +88,7 @@ class _BookingHeroBannerWidgetState extends State<BookingHeroBannerWidget> {
                                 .titleSmallIsCustom,
                           ),
                     ),
-                    SizedBox(height: 8.0),
+                    SizedBox(height: 4.0),
                     Opacity(
                       opacity: 0.8,
                       child: Text(
@@ -104,7 +105,7 @@ class _BookingHeroBannerWidgetState extends State<BookingHeroBannerWidget> {
                             ),
                       ),
                     ),
-                    SizedBox(height: 8.0),
+                    SizedBox(height: 6.0),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
