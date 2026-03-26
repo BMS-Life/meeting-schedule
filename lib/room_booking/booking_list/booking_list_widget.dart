@@ -46,38 +46,88 @@ class _BookingListWidgetState extends State<BookingListWidget> {
       },
       child: Material(
         color: FlutterFlowTheme.of(context).primaryBackground,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
           children: [
-            wrapWithModel(
-              model: _model.sidebarModel,
-              updateCallback: () => safeSetState(() {}),
-              child: SidebarWidget(),
-            ),
+            // AppBar for mobile/tablet (when sidebar is hidden)
+            if (!responsiveVisibility(
+              context: context,
+              phone: false,
+              tablet: false,
+              tabletLandscape: false,
+            ))
+              _buildMobileAppBar(context, 'จองห้องประชุม',
+                  onBack: () => context.safePop()),
             Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Hero Banner
-                    wrapWithModel(
-                      model: _model.bookingHeroBannerModel,
-                      updateCallback: () => safeSetState(() {}),
-                      child: BookingHeroBannerWidget(
-                        isAdmin: true,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  wrapWithModel(
+                    model: _model.sidebarModel,
+                    updateCallback: () => safeSetState(() {}),
+                    child: SidebarWidget(),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Hero Banner
+                          wrapWithModel(
+                            model: _model.bookingHeroBannerModel,
+                            updateCallback: () => safeSetState(() {}),
+                            child: BookingHeroBannerWidget(
+                              isAdmin: true,
+                            ),
+                          ),
+                          SizedBox(height: 16.0),
+                          // Room Cards
+                          _buildRoomListContent(context),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 16.0),
-                    // Room Cards
-                    _buildRoomListContent(context),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildMobileAppBar(BuildContext context, String title, {VoidCallback? onBack}) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsetsDirectional.fromSTEB(4.0, MediaQuery.paddingOf(context).top + 12.0, 4.0, 16.0),
+      decoration: BoxDecoration(
+        color: FlutterFlowTheme.of(context).primary,
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Centered title
+          Text(
+            title,
+            style: FlutterFlowTheme.of(context).titleSmall.override(
+                  fontFamily: FlutterFlowTheme.of(context).titleSmallFamily,
+                  color: Colors.white,
+                  letterSpacing: 0.0,
+                  fontWeight: FontWeight.w600,
+                  useGoogleFonts: !FlutterFlowTheme.of(context).titleSmallIsCustom,
+                ),
+          ),
+          // Back arrow on the left
+          if (onBack != null)
+            Positioned(
+              left: 0,
+              child: IconButton(
+                icon: Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24.0),
+                onPressed: onBack,
+              ),
+            ),
+        ],
       ),
     );
   }

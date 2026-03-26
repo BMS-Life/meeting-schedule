@@ -166,31 +166,14 @@ class _RoomCardWidgetState extends State<RoomCardWidget> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Date + status row
-                          () {
-                            if (MediaQuery.sizeOf(context).width <
-                                kBreakpointSmall) {
-                              // Mobile: stack vertically
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _buildDateInfo(context, dateStr, timeStr),
-                                  SizedBox(height: 8.0),
-                                  _buildStatusIndicator(context),
-                                ],
-                              ) as Widget;
-                            } else {
-                              // Desktop/Tablet: side by side
-                              return Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  _buildDateInfo(context, dateStr, timeStr),
-                                  _buildStatusIndicator(context),
-                                ],
-                              ) as Widget;
-                            }
-                          }(),
+                          // Date + status row (always side by side)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              _buildDateInfo(context, dateStr, timeStr),
+                              Flexible(child: _buildStatusIndicator(context)),
+                            ],
+                          ),
                           SizedBox(height: 8.0),
                           // Time slots grid
                           _buildTimeGrid(context, slots),
@@ -300,7 +283,7 @@ class _RoomCardWidgetState extends State<RoomCardWidget> {
         Flexible(
           child: Text(
             widget.isMeetingInProgress
-                ? 'กำลังประชุม : ${widget.currentMeetingName ?? ''}'
+                ? 'กำลังประชุม'
                 : 'ไม่มีการประชุม',
             style: FlutterFlowTheme.of(context).bodySmall.override(
                   fontFamily: FlutterFlowTheme.of(context).bodySmallFamily,
@@ -401,7 +384,7 @@ class _RoomCardWidgetState extends State<RoomCardWidget> {
     }
 
     return Container(
-      padding: EdgeInsetsDirectional.fromSTEB(12.0, 8.0, 12.0, 8.0),
+      padding: EdgeInsetsDirectional.fromSTEB(4.0, 6.0, 4.0, 6.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8.0),
         border: Border.all(
@@ -410,17 +393,21 @@ class _RoomCardWidgetState extends State<RoomCardWidget> {
         ),
       ),
       child: Center(
-        child: Text(
-          label,
-          style: FlutterFlowTheme.of(context).labelSmall.override(
-                fontFamily: FlutterFlowTheme.of(context).labelSmallFamily,
-                color: textColor,
-                fontSize: 12.0,
-                letterSpacing: 0.0,
-                fontWeight: FontWeight.w500,
-                useGoogleFonts:
-                    !FlutterFlowTheme.of(context).labelSmallIsCustom,
-              ),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            label,
+            maxLines: 1,
+            style: FlutterFlowTheme.of(context).labelSmall.override(
+                  fontFamily: FlutterFlowTheme.of(context).labelSmallFamily,
+                  color: textColor,
+                  fontSize: 12.0,
+                  letterSpacing: 0.0,
+                  fontWeight: FontWeight.w500,
+                  useGoogleFonts:
+                      !FlutterFlowTheme.of(context).labelSmallIsCustom,
+                ),
+          ),
         ),
       ),
     );

@@ -276,39 +276,92 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
       },
       child: Material(
         color: FlutterFlowTheme.of(context).primaryBackground,
-        child: Row(
+        child: Column(
           children: [
-            wrapWithModel(
-              model: _model.sidebarModel,
-              updateCallback: () => safeSetState(() {}),
-              child: SidebarWidget(),
-            ),
+            // AppBar for mobile/tablet (when sidebar is hidden)
+            if (!responsiveVisibility(
+              context: context,
+              phone: false,
+              tablet: false,
+              tabletLandscape: false,
+            ))
+              _buildMobileAppBar(context, 'รายละเอียดห้องประชุม',
+                  onBack: () => context.safePop()),
             Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Breadcrumb
-                    if (responsiveVisibility(
-                        context: context, phone: false))
-                      _buildBreadcrumb(context),
-                    SizedBox(height: 16.0),
+              child: Row(
+                children: [
+                  wrapWithModel(
+                    model: _model.sidebarModel,
+                    updateCallback: () => safeSetState(() {}),
+                    child: SidebarWidget(),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Breadcrumb (desktop only)
+                          if (responsiveVisibility(
+                              context: context, phone: false, tablet: false, tabletLandscape: false))
+                            _buildBreadcrumb(context),
+                          if (responsiveVisibility(
+                              context: context, phone: false, tablet: false, tabletLandscape: false))
+                            SizedBox(height: 16.0),
 
-                    // Room Header (hero banner style)
-                    _buildRoomHeader(context),
-                    SizedBox(height: 16.0),
+                          // Room Header (hero banner style)
+                          _buildRoomHeader(context),
+                          SizedBox(height: 16.0),
 
-                    // Weekly Timetable
-                    Expanded(
-                      child: _buildWeeklyTimetable(context),
+                          // Weekly Timetable
+                          Expanded(
+                            child: _buildWeeklyTimetable(context),
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ─── Breadcrumb ───
+  Widget _buildMobileAppBar(BuildContext context, String title, {VoidCallback? onBack}) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsetsDirectional.fromSTEB(4.0, MediaQuery.paddingOf(context).top + 12.0, 4.0, 16.0),
+      decoration: BoxDecoration(
+        color: FlutterFlowTheme.of(context).primary,
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Centered title
+          Text(
+            title,
+            style: FlutterFlowTheme.of(context).titleSmall.override(
+                  fontFamily: FlutterFlowTheme.of(context).titleSmallFamily,
+                  color: Colors.white,
+                  letterSpacing: 0.0,
+                  fontWeight: FontWeight.w600,
+                  useGoogleFonts: !FlutterFlowTheme.of(context).titleSmallIsCustom,
+                ),
+          ),
+          // Back arrow on the left
+          if (onBack != null)
+            Positioned(
+              left: 0,
+              child: IconButton(
+                icon: Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24.0),
+                onPressed: onBack,
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -1546,7 +1599,7 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  'ผู้จัดประชุม',
+                                  'ผู้จอง',
                                   style: FlutterFlowTheme.of(context)
                                       .labelSmall
                                       .override(
@@ -1565,18 +1618,19 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
                                 Text(
                                   booking['booker'] ?? '',
                                   style: FlutterFlowTheme.of(context)
-                                      .bodySmall
+                                      .labelSmall
                                       .override(
                                         fontFamily:
                                             FlutterFlowTheme.of(context)
-                                                .bodySmallFamily,
+                                                .labelSmallFamily,
                                         color: FlutterFlowTheme.of(context)
                                             .primaryText,
+                                        fontSize: 10.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.w500,
                                         useGoogleFonts:
                                             !FlutterFlowTheme.of(context)
-                                                .bodySmallIsCustom,
+                                                .labelSmallIsCustom,
                                       ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
