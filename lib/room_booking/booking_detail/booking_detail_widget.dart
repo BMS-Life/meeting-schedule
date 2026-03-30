@@ -99,6 +99,7 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
     _selectionStartDate = null;
   }
 
+  // For both day & week view: range selection (2 taps)
   void _handleSlotTap(BuildContext context, DateTime date, int slotIndex) {
     if (_selectionStartSlot == null ||
         _selectionStartDate == null ||
@@ -933,42 +934,40 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
             ),
           );
 
-    // Navigation controls
-    final navControls = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        InkWell(
-          onTap: () => safeSetState(() {
-            _model.selectedDate = DateTime.now();
-            _model.focusedMonth = _model.selectedDate;
-            _scrollToNow();
-          }),
+    // "วันนี้" button
+    final todayButton = InkWell(
+      onTap: () => safeSetState(() {
+        _model.selectedDate = DateTime.now();
+        _model.focusedMonth = _model.selectedDate;
+        _scrollToNow();
+      }),
+      borderRadius: BorderRadius.circular(12.0),
+      child: Container(
+        height: 36.0,
+        padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 12.0, 0.0),
+        decoration: BoxDecoration(
+          color: FlutterFlowTheme.of(context).primary,
           borderRadius: BorderRadius.circular(12.0),
-          child: Container(
-            height: 36.0,
-            padding: EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 12.0, 0.0),
-            decoration: BoxDecoration(
-              color: FlutterFlowTheme.of(context).primary,
-              borderRadius: BorderRadius.circular(12.0),
-            ),
-            child: Center(
-              child: Text(
-                'วันนี้',
-                style: FlutterFlowTheme.of(context).bodySmall.override(
-                      fontFamily:
-                          FlutterFlowTheme.of(context).bodySmallFamily,
-                      color:
-                          FlutterFlowTheme.of(context).primaryBackground,
-                      letterSpacing: 0.0,
-                      fontWeight: FontWeight.w600,
-                      useGoogleFonts: !FlutterFlowTheme.of(context)
-                          .bodySmallIsCustom,
-                    ),
-              ),
-            ),
+        ),
+        child: Center(
+          child: Text(
+            'วันนี้',
+            style: FlutterFlowTheme.of(context).bodySmall.override(
+                  fontFamily: FlutterFlowTheme.of(context).bodySmallFamily,
+                  color: FlutterFlowTheme.of(context).primaryBackground,
+                  letterSpacing: 0.0,
+                  fontWeight: FontWeight.w600,
+                  useGoogleFonts: !FlutterFlowTheme.of(context).bodySmallIsCustom,
+                ),
           ),
         ),
-        SizedBox(width: 8.0),
+      ),
+    );
+
+    // Arrow navigation
+    final arrowControls = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
         FlutterFlowIconButton(
           borderRadius: 100.0,
           buttonSize: 36.0,
@@ -999,6 +998,12 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
       ],
     );
 
+    // Combined for desktop single row
+    final navControls = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [todayButton, SizedBox(width: 8.0), arrowControls],
+    );
+
     // Desktop: single row | Mobile/Tablet: 2 rows
     if (!isCompact) {
       return Padding(
@@ -1021,15 +1026,15 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
         children: [
           Row(
             children: [
-              Expanded(child: monthDisplay),
-              SizedBox(width: 8.0),
+              monthDisplay,
+              Spacer(),
               viewToggle,
             ],
           ),
           SizedBox(height: 8.0),
           Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [navControls],
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [todayButton, arrowControls],
           ),
         ],
       ),
@@ -1152,62 +1157,70 @@ class _BookingDetailWidgetState extends State<BookingDetailWidget> {
                   height: _timeLabels.length * rowHeight,
                   child: Stack(
                     children: [
-                      // Grid lines + hover cells
-                      Column(
-                        children: List.generate(_timeLabels.length, (slotIndex) {
-                          final isBooked = bookings.any((b) =>
-                              slotIndex >= (b['startSlot'] as int) &&
-                              slotIndex < (b['endSlot'] as int));
-                          final isInsideBooking = bookings.any((b) =>
-                              slotIndex >= (b['startSlot'] as int) &&
-                              slotIndex < (b['endSlot'] as int) - 1);
-                          final isHovered = _hoveredSlotDate == date &&
-                              _hoveredSlotIndex == slotIndex;
-                          final isInSelection = _isSlotInSelection(date, slotIndex);
-                          final hasSelection = _selectionStartSlot != null &&
-                              _selectionStartDate != null &&
-                              date.year == _selectionStartDate?.year &&
-                              date.month == _selectionStartDate?.month &&
-                              date.day == _selectionStartDate?.day;
+                      // Grid lines + hover cells — use Positioned.fill so Column takes full width
+                      Positioned.fill(
+                        child: Column(
+                          children: List.generate(_timeLabels.length, (slotIndex) {
+                            final isBooked = bookings.any((b) =>
+                                slotIndex >= (b['startSlot'] as int) &&
+                                slotIndex < (b['endSlot'] as int));
+                            final isInsideBooking = bookings.any((b) =>
+                                slotIndex >= (b['startSlot'] as int) &&
+                                slotIndex < (b['endSlot'] as int) - 1);
+                            final isHovered = _hoveredSlotDate == date &&
+                                _hoveredSlotIndex == slotIndex;
+                            final isInSelection = _isSlotInSelection(date, slotIndex);
+                            final hasSelection = _selectionStartSlot != null &&
+                                _selectionStartDate != null &&
+                                date.year == _selectionStartDate?.year &&
+                                date.month == _selectionStartDate?.month &&
+                                date.day == _selectionStartDate?.day;
 
-                          return MouseRegion(
-                            onEnter: isBooked
-                                ? null
-                                : (_) => safeSetState(() {
-                                      _hoveredSlotIndex = slotIndex;
-                                      _hoveredSlotDate = date;
-                                    }),
-                            onExit: (_) => safeSetState(() {
-                              _hoveredSlotIndex = null;
-                              _hoveredSlotDate = null;
-                            }),
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: isBooked
-                                  ? null
-                                  : () => _handleSlotTap(context, date, slotIndex),
-                              child: Container(
-                                height: rowHeight,
-                                decoration: BoxDecoration(
-                                  color: isInSelection
-                                      ? FlutterFlowTheme.of(context)
-                                          .primary
-                                          .withAlpha(26)
-                                      : null,
-                                  border: Border(
-                                    bottom: isInsideBooking
-                                        ? BorderSide.none
-                                        : BorderSide(
-                                            color: FlutterFlowTheme.of(context)
-                                                .accent3),
+                            return Expanded(
+                              child: MouseRegion(
+                                onEnter: isBooked
+                                    ? null
+                                    : (_) => safeSetState(() {
+                                          _hoveredSlotIndex = slotIndex;
+                                          _hoveredSlotDate = date;
+                                        }),
+                                onExit: (_) => safeSetState(() {
+                                  _hoveredSlotIndex = null;
+                                  _hoveredSlotDate = null;
+                                }),
+                                child: GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: isBooked
+                                      ? null
+                                      : () => _handleSlotTap(context, date, slotIndex),
+                                  child: Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: isInSelection
+                                          ? FlutterFlowTheme.of(context)
+                                              .primary
+                                              .withAlpha(26)
+                                          : (isHovered && !isBooked)
+                                              ? FlutterFlowTheme.of(context)
+                                                  .primary
+                                                  .withAlpha(13)
+                                              : null,
+                                      border: Border(
+                                        bottom: isInsideBooking
+                                            ? BorderSide.none
+                                            : BorderSide(
+                                                color: FlutterFlowTheme.of(context)
+                                                    .accent3),
+                                      ),
+                                    ),
+                                    child: _buildSlotContent(context, date, slotIndex,
+                                        isBooked, isHovered, isInSelection, hasSelection),
                                   ),
                                 ),
-                                child: _buildSlotContent(context, date, slotIndex,
-                                    isBooked, isHovered, isInSelection, hasSelection),
                               ),
-                            ),
-                          );
-                        }),
+                            );
+                          }),
+                        ),
                       ),
                       // Booking cards (overlaid vertically)
                       ...bookings.map((b) {
